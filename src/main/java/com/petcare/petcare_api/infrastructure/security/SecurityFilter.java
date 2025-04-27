@@ -1,7 +1,6 @@
 package com.petcare.petcare_api.infrastructure.security;
 
 import com.petcare.petcare_api.coredomain.service.TokenService;
-import com.petcare.petcare_api.coredomain.service.UserService;
 import com.petcare.petcare_api.infrastructure.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

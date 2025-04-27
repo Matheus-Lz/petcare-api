@@ -25,5 +25,7 @@ public abstract class BaseModel {
     @Column(name = "date_updated")
     @UpdateTimestamp
     private LocalDateTime dateUpdated;
+
+    private boolean deleted = false;
 }
 

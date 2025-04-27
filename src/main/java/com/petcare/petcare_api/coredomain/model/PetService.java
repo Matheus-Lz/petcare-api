@@ -1,6 +1,6 @@
 package com.petcare.petcare_api.coredomain.model;
 
-import com.petcare.petcare_api.infrastructure.baseEntities.BaseModelWithSoftDelete;
+import com.petcare.petcare_api.infrastructure.baseEntities.BaseModel;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.util.StringUtils;
@@ -12,7 +12,7 @@ import org.springframework.util.StringUtils;
 @Builder
 @Entity
 @Table(name = "pet_service")
-public class PetService extends BaseModelWithSoftDelete {
+public class PetService extends BaseModel {
 
     @Column(name = "name", nullable = false)
     private String name;
