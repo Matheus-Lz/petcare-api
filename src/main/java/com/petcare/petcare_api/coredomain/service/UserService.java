@@ -36,6 +36,10 @@ public class UserService implements UserDetailsService {
     }
 
     public void registerUser(RegisterRequestDTO requestDTO) {
+        this.registerUser(requestDTO, UserRole.USER);
+    }
+
+    public User registerUser(RegisterRequestDTO requestDTO, UserRole role) {
         if (repository.findByEmail(requestDTO.email()) != null) {
             throw new IllegalArgumentException("Email já em uso");
         }
@@ -45,11 +49,11 @@ public class UserService implements UserDetailsService {
                 .password(new BCryptPasswordEncoder().encode(requestDTO.password()))
                 .name(requestDTO.name())
                 .cpfCnpj(requestDTO.cpfCnpj())
-                .role(UserRole.USER)
+                .role(role)
                 .build();
         newUser.validate();
 
-        repository.save(newUser);
+        return repository.save(newUser);
     }
 
     public Page<User> listUsers(Integer page, Integer size) {

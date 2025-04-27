@@ -1,6 +1,7 @@
 package com.petcare.petcare_api.coredomain.model;
 
 import com.petcare.petcare_api.infrastructure.baseEntities.BaseModel;
+import com.petcare.petcare_api.infrastructure.converter.UserRoleConverter;
 import com.petcare.petcare_api.infrastructure.enums.user.UserRole;
 import com.petcare.petcare_api.infrastructure.utils.CpfCnpjUtils;
 import jakarta.persistence.*;
@@ -34,8 +35,8 @@ public class User extends BaseModel implements UserDetails {
     @Column(name = "cpfCnpj", nullable = false)
     private String cpfCnpj;
 
+    @Convert(converter = UserRoleConverter.class)
     @Column(name = "role", nullable = false)
-    @Enumerated(EnumType.STRING)
     private UserRole role;
 
     public void validate() {
@@ -55,7 +56,7 @@ public class User extends BaseModel implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (this.role == UserRole.USER) return List.of(new SimpleGrantedAuthority("ROLE_USER"));
-        if (this.role == UserRole.ADMIN) return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        if (this.role == UserRole.EMPLOYEE) return List.of(new SimpleGrantedAuthority("ROLE_EMPLOYEE"));
         if (this.role == UserRole.SUPER_ADMIN) return List.of(new SimpleGrantedAuthority("ROLE_SUPER_ADMIN"));
 
         throw new RuntimeException("User.getAuthorities -> Erro ao consultar permissões do usuário " + this.getId());

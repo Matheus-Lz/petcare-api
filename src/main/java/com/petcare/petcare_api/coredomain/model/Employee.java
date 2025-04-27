@@ -1,0 +1,29 @@
+package com.petcare.petcare_api.coredomain.model;
+
+import com.petcare.petcare_api.infrastructure.baseEntities.BaseModel;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.List;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity
+@Table(name = "employee")
+public class Employee extends BaseModel {
+
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
+
+    @ManyToMany
+    @JoinTable(
+            name = "employee_services",
+            joinColumns = @JoinColumn(name = "employee_id"),
+            inverseJoinColumns = @JoinColumn(name = "service_id")
+    )
+    private List<PetService> petServiceList;
+}
