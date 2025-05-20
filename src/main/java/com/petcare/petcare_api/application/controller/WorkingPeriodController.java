@@ -40,6 +40,14 @@ public class WorkingPeriodController {
         return ResponseEntity.ok(service.findById(id));
     }
 
+    @Operation(summary = "Atualiza um período de trabalho existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<WorkingPeriodResponseDTO> update(
+            @Parameter(description = "ID do período a ser atualizado") @PathVariable String id,
+            @RequestBody WorkingPeriodRequestDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
+    }
+
     @Operation(summary = "Remove um período de trabalho pelo ID")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(

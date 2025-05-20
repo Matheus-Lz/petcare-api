@@ -20,13 +20,23 @@ public class WorkingPeriod extends BaseModel {
     @Column(name = "day_of_week", nullable = false)
     private DayOfWeek dayOfWeek;
 
-    //Adicionar dias especificificos
-
     @Column(name = "start_time", nullable = false)
     private LocalTime startTime;
 
     @Column(name = "end_time", nullable = false)
     private LocalTime endTime;
+
+    public void validateInternalState() {
+        if (this.dayOfWeek == null) {
+            throw new IllegalArgumentException("O dia da semana não pode ser nulo.");
+        }
+        if (this.startTime == null || this.endTime == null) {
+            throw new IllegalArgumentException("Os horários de início e fim não podem ser nulos.");
+        }
+        if (this.startTime.isAfter(this.endTime) || this.startTime.equals(this.endTime)) {
+            throw new IllegalArgumentException("O horário de início (" + this.startTime +
+                    ") deve ser anterior ao horário de término (" + this.endTime +
+                    ") para " + this.dayOfWeek + ".");
+        }
+    }
 }
-
-
