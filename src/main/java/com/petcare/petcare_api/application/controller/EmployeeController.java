@@ -1,8 +1,8 @@
 package com.petcare.petcare_api.application.controller;
 
 import com.petcare.petcare_api.application.dto.employee.CreateEmployeeRequestDTO;
+import com.petcare.petcare_api.application.dto.employee.EmployeeResponseDTO;
 import com.petcare.petcare_api.application.dto.employee.UpdateEmployeeRequestDTO;
-import com.petcare.petcare_api.coredomain.model.Employee;
 import com.petcare.petcare_api.coredomain.service.EmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,10 +10,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/employees")
@@ -32,9 +31,9 @@ public class EmployeeController {
             @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos")
     })
     @PostMapping
-    public ResponseEntity<Employee> create(@RequestBody @Valid CreateEmployeeRequestDTO requestDTO) {
-        Employee created = service.create(requestDTO);
-        return ResponseEntity.ok(created);
+    public ResponseEntity<EmployeeResponseDTO> create(@RequestBody @Valid CreateEmployeeRequestDTO requestDTO) {
+        EmployeeResponseDTO responseDTO = new EmployeeResponseDTO(service.create(requestDTO));
+        return ResponseEntity.ok(responseDTO);
     }
 
     @Operation(summary = "Atualiza os serviços de um funcionário", description = "Atualiza os serviços vinculados a um funcionário")
@@ -43,10 +42,10 @@ public class EmployeeController {
             @ApiResponse(responseCode = "404", description = "Funcionário não encontrado")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<Employee> update(@PathVariable @Parameter(description = "ID do funcionário") String id,
-                                           @RequestBody @Valid UpdateEmployeeRequestDTO requestDTO) {
-        Employee updated = service.update(id, requestDTO);
-        return ResponseEntity.ok(updated);
+    public ResponseEntity<EmployeeResponseDTO> update(@PathVariable @Parameter(description = "ID do funcionário") String id,
+                                                      @RequestBody @Valid UpdateEmployeeRequestDTO requestDTO) {
+        EmployeeResponseDTO responseDTO = new EmployeeResponseDTO(service.update(id, requestDTO));
+        return ResponseEntity.ok(responseDTO);
     }
 
     @Operation(summary = "Busca um funcionário por ID", description = "Recupera os dados de um funcionário específico")
@@ -55,8 +54,9 @@ public class EmployeeController {
             @ApiResponse(responseCode = "404", description = "Funcionário não encontrado")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<Employee> getById(@PathVariable @Parameter(description = "ID do funcionário") String id) {
-        return ResponseEntity.ok(service.getById(id));
+    public ResponseEntity<EmployeeResponseDTO> getById(@PathVariable @Parameter(description = "ID do funcionário") String id) {
+        EmployeeResponseDTO responseDTO = new EmployeeResponseDTO(service.getById(id));
+        return ResponseEntity.ok(responseDTO);
     }
 
     @Operation(summary = "Lista todos os funcionários", description = "Retorna uma lista de todos os funcionários")
@@ -64,8 +64,9 @@ public class EmployeeController {
             @ApiResponse(responseCode = "200", description = "Funcionários listados com sucesso")
     })
     @GetMapping
-    public ResponseEntity<List<Employee>> list() {
-        return ResponseEntity.ok(service.list());
+    public ResponseEntity<Page<EmployeeResponseDTO>> list(@RequestParam(defaultValue = "0") @Parameter(description = "Número da página de resultados") Integer page,
+                                                          @RequestParam(defaultValue = "10") @Parameter(description = "Número de itens por página") Integer size) {
+        return ResponseEntity.ok(service.list(page, size));
     }
 
     @Operation(summary = "Deleta um funcionário", description = "Remove logicamente um funcionário pelo ID")

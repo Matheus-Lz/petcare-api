@@ -1,7 +1,7 @@
 package com.petcare.petcare_api.application.dto.employee;
 
+import com.petcare.petcare_api.application.dto.user.UserResponse;
 import com.petcare.petcare_api.coredomain.model.Employee;
-import com.petcare.petcare_api.infrastructure.baseEntities.BaseModel;
 import lombok.Data;
 
 import java.util.List;
@@ -9,14 +9,14 @@ import java.util.List;
 @Data
 public class EmployeeResponseDTO {
     private String id;
-    private String userId;
-    private List<String> serviceIds;
+    private UserResponse user;
+    private List<PetServiceEmployeeResponse> petServiceList;
 
     public EmployeeResponseDTO(Employee employee) {
         this.id = employee.getId();
-        this.userId = employee.getUser().getId();
-        this.serviceIds = employee.getPetServiceList().stream()
-                .map(BaseModel::getId)
+        this.user = new UserResponse(employee.getUser());
+        this.petServiceList = employee.getPetServiceList().stream()
+                .map(PetServiceEmployeeResponse::new)
                 .toList();
     }
 }

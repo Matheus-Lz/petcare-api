@@ -1,6 +1,7 @@
 package com.petcare.petcare_api.coredomain.service;
 
 import com.petcare.petcare_api.application.dto.employee.CreateEmployeeRequestDTO;
+import com.petcare.petcare_api.application.dto.employee.EmployeeResponseDTO;
 import com.petcare.petcare_api.application.dto.employee.UpdateEmployeeRequestDTO;
 import com.petcare.petcare_api.coredomain.model.Employee;
 import com.petcare.petcare_api.coredomain.model.PetService;
@@ -9,6 +10,8 @@ import com.petcare.petcare_api.infrastructure.enums.user.UserRole;
 import com.petcare.petcare_api.infrastructure.repository.EmployeeRepository;
 import com.petcare.petcare_api.infrastructure.repository.PetServiceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -53,8 +56,9 @@ public class EmployeeService {
                 .orElseThrow(() -> new IllegalArgumentException("Funcionário não encontrado"));
     }
 
-    public List<Employee> list() {
-        return repository.findAll();
+    public Page<EmployeeResponseDTO> list(Integer page, Integer size) {
+        Page<Employee> employeesList = repository.findAll(PageRequest.of(page, size));
+        return employeesList.map(EmployeeResponseDTO::new);
     }
 
     public void delete(String id) {
