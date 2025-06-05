@@ -25,8 +25,8 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponseDTO> login(@Valid @RequestBody AuthenticationRequestDTO requestDTO) {
-        String token = service.login(requestDTO, authenticationManager);
-        return ResponseEntity.ok(new AuthenticationResponseDTO(token));
+        AuthenticationResponseDTO user = service.authenticate(requestDTO, authenticationManager);
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping("/register")

@@ -30,9 +30,13 @@ public class UserService implements UserDetailsService {
         this.repository = repository;
     }
 
-    public String login(AuthenticationRequestDTO requestDTO, AuthenticationManager authenticationManager) {
-        Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(requestDTO.email(), requestDTO.password()));
-        return tokenService.generateToken(((User) auth.getPrincipal()).getEmail());
+    public AuthenticationResponseDTO authenticate(AuthenticationRequestDTO requestDTO, AuthenticationManager authenticationManager) {
+        Authentication auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(requestDTO.email(), requestDTO.password())
+        );
+        User authUser = (User) auth.getPrincipal();
+        String token = tokenService.generateToken(authUser.getEmail());
+        return new AuthenticationResponseDTO(token, authUser.getRole().name(), authUser.getName());
     }
 
     public void registerUser(RegisterRequestDTO requestDTO) {
