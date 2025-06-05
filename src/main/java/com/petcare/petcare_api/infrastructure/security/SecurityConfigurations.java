@@ -38,12 +38,22 @@ public class SecurityConfigurations {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST, "/user/login", "/user/register").permitAll()
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/schedullings/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/pet-services/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/pet-services/**").hasAnyRole("SUPER_ADMIN", "EMPLOYEE")
+                        .requestMatchers(HttpMethod.PUT, "/pet-services/**").hasAnyRole("SUPER_ADMIN", "EMPLOYEE")
+                        .requestMatchers(HttpMethod.DELETE, "/pet-services/**").hasAnyRole("SUPER_ADMIN", "EMPLOYEE")
+                        .requestMatchers("/employees/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/working-periods/**").hasAnyRole("SUPER_ADMIN", "EMPLOYEE")
+                        .requestMatchers(HttpMethod.POST, "/user/login", "/user/register").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/user/**").hasAnyRole("SUPER_ADMIN", "EMPLOYEE")
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/development/doc").permitAll()
-                        .anyRequest().hasRole("USER"))
+                )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
