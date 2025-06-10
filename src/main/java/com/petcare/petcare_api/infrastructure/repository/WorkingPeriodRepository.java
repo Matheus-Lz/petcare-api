@@ -11,7 +11,7 @@ import java.util.Optional;
 @Repository
 public interface WorkingPeriodRepository extends JpaRepository<WorkingPeriod, String> {
 
-    Optional<WorkingPeriod> findByDayOfWeek(DayOfWeek dayOfWeek);
+    List<WorkingPeriod> findAllByOrderByStartTimeAsc();
 
     List<WorkingPeriod> findAllByDayOfWeek(DayOfWeek dayOfWeek);
 }

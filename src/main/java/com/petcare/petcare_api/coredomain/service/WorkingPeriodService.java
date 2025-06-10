@@ -72,7 +72,7 @@ public class WorkingPeriodService {
     }
 
     public List<WorkingPeriodResponseDTO> findAll() {
-        return repository.findAll().stream().map(this::toResponse).collect(Collectors.toList());
+        return repository.findAllByOrderByStartTimeAsc().stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     public WorkingPeriodResponseDTO findById(String id) {
