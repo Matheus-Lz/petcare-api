@@ -6,6 +6,7 @@ import com.petcare.petcare_api.infrastructure.enums.user.UserRole;
 import com.petcare.petcare_api.infrastructure.utils.CpfCnpjUtils;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +22,7 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "users")
+@Where(clause = "deleted = false")
 public class User extends BaseModel implements UserDetails {
 
     @Column(name = "email", nullable = false, unique = true)

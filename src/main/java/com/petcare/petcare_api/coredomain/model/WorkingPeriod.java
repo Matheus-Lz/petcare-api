@@ -3,6 +3,7 @@ package com.petcare.petcare_api.coredomain.model;
 import com.petcare.petcare_api.infrastructure.baseEntities.BaseModel;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -14,6 +15,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Where(clause = "deleted = false")
 public class WorkingPeriod extends BaseModel {
 
     @Enumerated(EnumType.STRING)
