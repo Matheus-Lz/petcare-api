@@ -1,8 +1,8 @@
 package com.petcare.petcare_api.coredomain.service;
 
 import com.petcare.petcare_api.application.dto.user.*;
-import com.petcare.petcare_api.coredomain.model.User;
-import com.petcare.petcare_api.infrastructure.enums.user.UserRole;
+import com.petcare.petcare_api.coredomain.model.user.User;
+import com.petcare.petcare_api.coredomain.model.user.enums.UserRole;
 import com.petcare.petcare_api.infrastructure.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

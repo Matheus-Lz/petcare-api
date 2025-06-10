@@ -1,5 +1,6 @@
 package com.petcare.petcare_api.coredomain.model;
 
+import com.petcare.petcare_api.coredomain.model.user.User;
 import com.petcare.petcare_api.infrastructure.baseEntities.BaseModel;
 import jakarta.persistence.*;
 import lombok.*;

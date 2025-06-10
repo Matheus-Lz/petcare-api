@@ -1,8 +1,8 @@
 package com.petcare.petcare_api.utils;
 
 import com.petcare.petcare_api.application.dto.user.*;
-import com.petcare.petcare_api.coredomain.model.User;
-import com.petcare.petcare_api.infrastructure.enums.user.UserRole;
+import com.petcare.petcare_api.coredomain.model.user.User;
+import com.petcare.petcare_api.coredomain.model.user.enums.UserRole;
 
 public class UserTestFactory {
 

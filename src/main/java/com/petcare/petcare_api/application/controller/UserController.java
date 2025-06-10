@@ -1,7 +1,7 @@
 package com.petcare.petcare_api.application.controller;
 
 import com.petcare.petcare_api.application.dto.user.*;
-import com.petcare.petcare_api.coredomain.model.User;
+import com.petcare.petcare_api.coredomain.model.user.User;
 import com.petcare.petcare_api.coredomain.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,6 +1,6 @@
 package com.petcare.petcare_api.application.dto.user;
 
-import com.petcare.petcare_api.coredomain.model.User;
+import com.petcare.petcare_api.coredomain.model.user.User;
 import lombok.Data;
 
 @Data

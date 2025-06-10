@@ -1,7 +1,7 @@
 package com.petcare.petcare_api.infrastructure.baseEntities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.petcare.petcare_api.coredomain.model.User;
+import com.petcare.petcare_api.coredomain.model.user.User;
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.Null;

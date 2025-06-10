@@ -1,4 +1,4 @@
-package com.petcare.petcare_api.infrastructure.enums.user;
+package com.petcare.petcare_api.coredomain.model.user.enums;
 
 import lombok.Getter;
 

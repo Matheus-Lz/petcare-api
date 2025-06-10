@@ -2,7 +2,7 @@ package com.petcare.petcare_api.coredomain.service;
 
 import com.petcare.petcare_api.application.dto.user.RegisterRequestDTO;
 import com.petcare.petcare_api.application.dto.user.UpdateUserRequestDTO;
-import com.petcare.petcare_api.infrastructure.enums.user.UserRole;
+import com.petcare.petcare_api.coredomain.model.user.enums.UserRole;
 import com.petcare.petcare_api.infrastructure.repository.UserRepository;
 import com.petcare.petcare_api.utils.UserTestFactory;
 import org.junit.jupiter.api.Test;

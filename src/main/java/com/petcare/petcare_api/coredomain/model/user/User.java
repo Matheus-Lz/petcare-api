@@ -1,8 +1,8 @@
-package com.petcare.petcare_api.coredomain.model;
+package com.petcare.petcare_api.coredomain.model.user;
 
+import com.petcare.petcare_api.coredomain.model.user.enums.UserRole;
 import com.petcare.petcare_api.infrastructure.baseEntities.BaseModel;
 import com.petcare.petcare_api.infrastructure.converter.UserRoleConverter;
-import com.petcare.petcare_api.infrastructure.enums.user.UserRole;
 import com.petcare.petcare_api.infrastructure.utils.CpfCnpjUtils;
 import jakarta.persistence.*;
 import lombok.*;

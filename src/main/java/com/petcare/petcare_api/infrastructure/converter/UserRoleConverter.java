@@ -2,7 +2,7 @@ package com.petcare.petcare_api.infrastructure.converter;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import com.petcare.petcare_api.infrastructure.enums.user.UserRole;
+import com.petcare.petcare_api.coredomain.model.user.enums.UserRole;
 
 @Converter(autoApply = true)
 public class UserRoleConverter implements AttributeConverter<UserRole, String> {
