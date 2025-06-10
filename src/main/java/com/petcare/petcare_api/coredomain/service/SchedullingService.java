@@ -13,8 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,29 +24,26 @@ import java.util.stream.Collectors;
 public class SchedullingService {
 
     private final SchedullingRepository schedullingRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final PetServiceRepository petServiceRepository;
     private final WorkingPeriodRepository workingPeriodRepository;
 
     @Autowired
-    public SchedullingService(SchedullingRepository schedullingRepository, UserRepository userRepository, PetServiceRepository petServiceRepository, WorkingPeriodRepository workingPeriodRepository) {
+    public SchedullingService(SchedullingRepository schedullingRepository, UserService userService, PetServiceRepository petServiceRepository, WorkingPeriodRepository workingPeriodRepository) {
         this.schedullingRepository = schedullingRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
         this.petServiceRepository = petServiceRepository;
         this.workingPeriodRepository = workingPeriodRepository;
     }
 
     public SchedullingResponseDTO create(SchedullingRequestDTO dto) {
-        User user = userRepository.findById(dto.userId())
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
-
         PetService petService = petServiceRepository.findById(dto.petServiceId())
                 .orElseThrow(() -> new EntityNotFoundException("PetService not found"));
 
         validateSchedullingTime(dto.schedullingHour(), petService);
 
         Schedulling schedulling = Schedulling.builder()
-                .user(user)
+                .user(userService.getCurrentUser())
                 .petService(petService)
                 .schedullingHour(dto.schedullingHour())
                 .employee(null)
@@ -81,14 +80,63 @@ public class SchedullingService {
 
     public void validateSchedullingTime(LocalDateTime schedullingHour, PetService petService) {
         DayOfWeek dayOfWeek = schedullingHour.getDayOfWeek();
-        WorkingPeriod workingPeriod = workingPeriodRepository.findByDayOfWeek(dayOfWeek)
-                .orElseThrow(() -> new EntityNotFoundException("Não foi encontrado periodo de trabalho para o dia selecionado"));
+        List<WorkingPeriod> workingPeriods = workingPeriodRepository.findAllByDayOfWeek(dayOfWeek);
 
-        LocalTime endOfSchedulling = schedullingHour.toLocalTime().plusMinutes(petService.getTime());
-        if (endOfSchedulling.isAfter(workingPeriod.getEndTime())) {
-            throw new IllegalArgumentException("Agendamento não pode ser feito, o serviço ultrapassa o horário de trabalho.");
+        if (workingPeriods.isEmpty()) {
+            throw new EntityNotFoundException("Não foi encontrado período de trabalho para o dia selecionado");
+        }
+
+        LocalTime start = schedullingHour.toLocalTime();
+        LocalTime end = start.plusMinutes(petService.getTime());
+
+        boolean fitsInAnyPeriod = workingPeriods.stream().anyMatch(period ->
+                !start.isBefore(period.getStartTime()) && !end.isAfter(period.getEndTime())
+        );
+
+        if (!fitsInAnyPeriod) {
+            throw new IllegalArgumentException("Agendamento não pode ser feito, o serviço não se encaixa em nenhum período de trabalho.");
         }
     }
 
+
+    public List<LocalTime> getAvailableTimes(String petServiceId, LocalDate date) {
+        PetService petService = petServiceRepository.findById(petServiceId)
+                .orElseThrow(() -> new EntityNotFoundException("PetService not found"));
+
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+        List<WorkingPeriod> workingPeriods = workingPeriodRepository.findAllByDayOfWeek(dayOfWeek);
+
+        if (workingPeriods.isEmpty()) {
+            throw new EntityNotFoundException("No working periods found for this day");
+        }
+
+        LocalDateTime startOfDay = date.atTime(0, 0);
+        LocalDateTime endOfDay = date.atTime(23, 59);
+        List<Schedulling> schedullings = schedullingRepository.findBySchedullingHourBetween(startOfDay, endOfDay);
+
+        int duration = petService.getTime();
+        List<LocalTime> availableTimes = new ArrayList<>();
+
+        for (WorkingPeriod period : workingPeriods) {
+            LocalTime cursor = period.getStartTime();
+
+            while (!cursor.plusMinutes(duration).isAfter(period.getEndTime())) {
+                LocalTime finalCursor = cursor;
+
+                boolean conflicts = schedullings.stream().anyMatch(s ->
+                        !s.getSchedullingHour().toLocalTime().isAfter(finalCursor.plusMinutes(duration).minusSeconds(1)) &&
+                                !s.getSchedullingHour().toLocalTime().plusMinutes(s.getPetService().getTime()).isBefore(finalCursor)
+                );
+
+                if (!conflicts) {
+                    availableTimes.add(cursor);
+                }
+
+                cursor = cursor.plusMinutes(30);
+            }
+        }
+
+        return availableTimes;
+    }
 }
 

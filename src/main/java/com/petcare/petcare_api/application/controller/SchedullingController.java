@@ -7,9 +7,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @RestController
@@ -45,5 +48,14 @@ public class SchedullingController {
             @Parameter(description = "ID do agendamento") @PathVariable String id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/available-times")
+    public ResponseEntity<List<LocalTime>> getAvailableTimes(
+            @RequestParam String petServiceId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+
+        List<LocalTime> availableTimes = service.getAvailableTimes(petServiceId, date);
+        return ResponseEntity.ok(availableTimes);
     }
 }
