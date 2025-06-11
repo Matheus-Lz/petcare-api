@@ -4,9 +4,10 @@ import com.petcare.petcare_api.application.dto.schedulling.SchedullingRequestDTO
 import com.petcare.petcare_api.application.dto.schedulling.SchedullingResponseDTO;
 import com.petcare.petcare_api.coredomain.model.*;
 
+import com.petcare.petcare_api.coredomain.model.schedulling.Schedulling;
+import com.petcare.petcare_api.coredomain.model.schedulling.enums.SchedullingStatus;
 import com.petcare.petcare_api.infrastructure.repository.PetServiceRepository;
 import com.petcare.petcare_api.infrastructure.repository.SchedullingRepository;
-import com.petcare.petcare_api.infrastructure.repository.UserRepository;
 import com.petcare.petcare_api.infrastructure.repository.WorkingPeriodRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,7 @@ public class SchedullingService {
                 .petService(petService)
                 .schedullingHour(dto.schedullingHour())
                 .employee(null)
+                .status(SchedullingStatus.WAITING_FOR_ARRIVAL)
                 .build();
 
         return toResponse(schedullingRepository.save(schedulling));
@@ -68,13 +70,14 @@ public class SchedullingService {
         schedullingRepository.deleteById(id);
     }
 
-    private SchedullingResponseDTO toResponse(Schedulling s) {
+    private SchedullingResponseDTO toResponse(Schedulling schedulling) {
         return new SchedullingResponseDTO(
-                s.getId(),
-                s.getUser().getId(),
-                s.getEmployee() != null ? s.getEmployee().getId() : null,
-                s.getPetService().getId(),
-                s.getSchedullingHour()
+                schedulling.getId(),
+                schedulling.getUser().getId(),
+                schedulling.getEmployee() != null ? schedulling.getEmployee().getId() : null,
+                schedulling.getPetService().getId(),
+                schedulling.getSchedullingHour(),
+                schedulling.getStatus()
         );
     }
 
@@ -137,6 +140,28 @@ public class SchedullingService {
         }
 
         return availableTimes;
+    }
+
+    public List<LocalDate> getAvailableDays(String petServiceId, LocalDate monthStart) {
+        petServiceRepository.findById(petServiceId)
+                .orElseThrow(() -> new EntityNotFoundException("Serviço não encontrado"));
+
+        LocalDate monthEnd = monthStart.withDayOfMonth(monthStart.lengthOfMonth());
+        List<LocalDate> availableDays = new ArrayList<>();
+
+        for (LocalDate date = monthStart; !date.isAfter(monthEnd); date = date.plusDays(1)) {
+            try {
+                List<LocalTime> times = getAvailableTimes(petServiceId, date);
+                if (!times.isEmpty()) {
+                    availableDays.add(date);
+                }
+            } catch (EntityNotFoundException ignored) {
+            } catch (Exception e) {
+                System.err.printf("Erro ao verificar horários disponíveis para o dia %s: %s%n", date, e.getMessage());
+            }
+        }
+
+        return availableDays;
     }
 }
 

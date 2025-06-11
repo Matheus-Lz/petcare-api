@@ -58,4 +58,13 @@ public class SchedullingController {
         List<LocalTime> availableTimes = service.getAvailableTimes(petServiceId, date);
         return ResponseEntity.ok(availableTimes);
     }
+
+    @GetMapping("/available-days")
+    public ResponseEntity<List<LocalDate>> getAvailableDays(
+            @RequestParam String petServiceId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate monthStart) {
+
+        List<LocalDate> availableDays = service.getAvailableDays(petServiceId, monthStart);
+        return ResponseEntity.ok(availableDays);
+    }
 }

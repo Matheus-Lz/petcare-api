@@ -1,5 +1,7 @@
 package com.petcare.petcare_api.application.dto.schedulling;
 
+import com.petcare.petcare_api.coredomain.model.schedulling.enums.SchedullingStatus;
+
 import java.time.LocalDateTime;
 
 public record SchedullingResponseDTO(
@@ -7,5 +9,6 @@ public record SchedullingResponseDTO(
         String userId,
         String employeeId,
         String petServiceId,
-        LocalDateTime schedullingHour
+        LocalDateTime schedullingHour,
+        SchedullingStatus status
 ) {}

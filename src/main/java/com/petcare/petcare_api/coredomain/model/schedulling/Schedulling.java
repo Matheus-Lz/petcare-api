@@ -1,5 +1,8 @@
-package com.petcare.petcare_api.coredomain.model;
+package com.petcare.petcare_api.coredomain.model.schedulling;
 
+import com.petcare.petcare_api.coredomain.model.Employee;
+import com.petcare.petcare_api.coredomain.model.PetService;
+import com.petcare.petcare_api.coredomain.model.schedulling.enums.SchedullingStatus;
 import com.petcare.petcare_api.coredomain.model.user.User;
 import com.petcare.petcare_api.infrastructure.baseEntities.BaseModel;
 import jakarta.persistence.*;
@@ -30,9 +33,9 @@ public class Schedulling extends BaseModel {
     @JoinColumn(name = "pet_service_id", nullable = false)
     private PetService petService;
 
-    //Colocar status
-
-    //Colocar dados sobre o animal
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private SchedullingStatus status;
 
     @Column(name = "schedulling_hour", nullable = false)
     private LocalDateTime schedullingHour;
