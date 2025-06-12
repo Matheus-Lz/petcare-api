@@ -50,7 +50,7 @@ public class PetServiceService {
     }
 
     public Page<PetServiceResponseDTO> list(Integer page, Integer size) {
-        Page<PetService> petServicePage = repository.findAll(PageRequest.of(page, size));
+        Page<PetService> petServicePage = repository.findAllActive(PageRequest.of(page, size));
         return petServicePage.map(PetServiceResponseDTO::new);
     }
 

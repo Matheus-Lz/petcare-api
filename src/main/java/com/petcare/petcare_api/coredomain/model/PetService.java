@@ -3,7 +3,6 @@ package com.petcare.petcare_api.coredomain.model;
 import com.petcare.petcare_api.infrastructure.baseEntities.BaseModel;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Where;
 import org.springframework.util.StringUtils;
 
 @Getter
@@ -13,7 +12,6 @@ import org.springframework.util.StringUtils;
 @Builder
 @Entity
 @Table(name = "pet_service")
-@Where(clause = "deleted = false")
 public class PetService extends BaseModel {
 
     @Column(name = "name", nullable = false)

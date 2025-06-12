@@ -2,11 +2,13 @@ package com.petcare.petcare_api.application.controller;
 
 import com.petcare.petcare_api.application.dto.schedulling.SchedullingRequestDTO;
 import com.petcare.petcare_api.application.dto.schedulling.SchedullingResponseDTO;
+import com.petcare.petcare_api.application.dto.schedulling.SchedullingResponseDetailDTO;
 import com.petcare.petcare_api.coredomain.service.SchedullingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,17 +31,12 @@ public class SchedullingController {
         return ResponseEntity.ok(service.create(dto));
     }
 
-    @Operation(summary = "Busca todos os agendamentos")
-    @GetMapping
-    public ResponseEntity<List<SchedullingResponseDTO>> findAll() {
-        return ResponseEntity.ok(service.findAll());
-    }
-
     @Operation(summary = "Busca um agendamento pelo ID")
     @GetMapping("/{id}")
-    public ResponseEntity<SchedullingResponseDTO> findById(
+    public ResponseEntity<SchedullingResponseDetailDTO> findById(
             @Parameter(description = "ID do agendamento") @PathVariable String id) {
-        return ResponseEntity.ok(service.findById(id));
+        SchedullingResponseDetailDTO response = new SchedullingResponseDetailDTO(service.findById(id));
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Deleta um agendamento pelo ID")
@@ -67,4 +64,14 @@ public class SchedullingController {
         List<LocalDate> availableDays = service.getAvailableDays(petServiceId, monthStart);
         return ResponseEntity.ok(availableDays);
     }
+
+    @Operation(summary = "Busca os agendamentos do usuário logado com paginação")
+    @GetMapping("/user")
+    public ResponseEntity<Page<SchedullingResponseDetailDTO>> findUserSchedullings(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        return ResponseEntity.ok(service.findByCurrentUser(page, size));
+    }
+
 }

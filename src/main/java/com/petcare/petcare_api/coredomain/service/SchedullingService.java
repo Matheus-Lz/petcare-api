@@ -2,6 +2,7 @@ package com.petcare.petcare_api.coredomain.service;
 
 import com.petcare.petcare_api.application.dto.schedulling.SchedullingRequestDTO;
 import com.petcare.petcare_api.application.dto.schedulling.SchedullingResponseDTO;
+import com.petcare.petcare_api.application.dto.schedulling.SchedullingResponseDetailDTO;
 import com.petcare.petcare_api.coredomain.model.*;
 
 import com.petcare.petcare_api.coredomain.model.schedulling.Schedulling;
@@ -11,6 +12,10 @@ import com.petcare.petcare_api.infrastructure.repository.SchedullingRepository;
 import com.petcare.petcare_api.infrastructure.repository.WorkingPeriodRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -19,19 +24,18 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class SchedullingService {
 
-    private final SchedullingRepository schedullingRepository;
+    private final SchedullingRepository repository;
     private final UserService userService;
     private final PetServiceRepository petServiceRepository;
     private final WorkingPeriodRepository workingPeriodRepository;
 
     @Autowired
-    public SchedullingService(SchedullingRepository schedullingRepository, UserService userService, PetServiceRepository petServiceRepository, WorkingPeriodRepository workingPeriodRepository) {
-        this.schedullingRepository = schedullingRepository;
+    public SchedullingService(SchedullingRepository repository, UserService userService, PetServiceRepository petServiceRepository, WorkingPeriodRepository workingPeriodRepository) {
+        this.repository = repository;
         this.userService = userService;
         this.petServiceRepository = petServiceRepository;
         this.workingPeriodRepository = workingPeriodRepository;
@@ -51,34 +55,16 @@ public class SchedullingService {
                 .status(SchedullingStatus.WAITING_FOR_ARRIVAL)
                 .build();
 
-        return toResponse(schedullingRepository.save(schedulling));
+        return new SchedullingResponseDTO(repository.save(schedulling));
     }
 
-    public List<SchedullingResponseDTO> findAll() {
-        return schedullingRepository.findAll().stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
-    }
-
-    public SchedullingResponseDTO findById(String id) {
-        return schedullingRepository.findById(id)
-                .map(this::toResponse)
+    public Schedulling findById(String id) {
+        return repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Schedulling not found"));
     }
 
     public void delete(String id) {
-        schedullingRepository.deleteById(id);
-    }
-
-    private SchedullingResponseDTO toResponse(Schedulling schedulling) {
-        return new SchedullingResponseDTO(
-                schedulling.getId(),
-                schedulling.getUser().getId(),
-                schedulling.getEmployee() != null ? schedulling.getEmployee().getId() : null,
-                schedulling.getPetService().getId(),
-                schedulling.getSchedullingHour(),
-                schedulling.getStatus()
-        );
+        repository.deleteById(id);
     }
 
     public void validateSchedullingTime(LocalDateTime schedullingHour, PetService petService) {
@@ -115,7 +101,7 @@ public class SchedullingService {
 
         LocalDateTime startOfDay = date.atTime(0, 0);
         LocalDateTime endOfDay = date.atTime(23, 59);
-        List<Schedulling> schedullings = schedullingRepository.findBySchedullingHourBetween(startOfDay, endOfDay);
+        List<Schedulling> schedullings = repository.findBySchedullingHourBetween(startOfDay, endOfDay);
 
         int duration = petService.getTime();
         List<LocalTime> availableTimes = new ArrayList<>();
@@ -163,5 +149,14 @@ public class SchedullingService {
 
         return availableDays;
     }
+
+    public Page<SchedullingResponseDetailDTO> findByCurrentUser(int page, int size) {
+        var user = userService.getCurrentUser();
+        Pageable pageable = PageRequest.of(page, size, Sort.by("dateCreated").descending());
+
+        Page<Schedulling> schedullingPage = repository.findByUserId(user.getId(), pageable);
+        return schedullingPage.map(SchedullingResponseDetailDTO::new);
+    }
+
 }
 
