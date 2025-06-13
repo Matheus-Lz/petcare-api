@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/employees")
@@ -27,14 +30,22 @@ public class EmployeeController {
 
     @Operation(summary = "Cria um novo funcionário", description = "Cria um novo funcionário junto com o usuário vinculado")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Funcionário criado com sucesso"),
+            @ApiResponse(responseCode = "201", description = "Funcionário criado com sucesso"), // Corrigir aqui também para 201
             @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos")
     })
     @PostMapping
     public ResponseEntity<EmployeeResponseDTO> create(@RequestBody @Valid CreateEmployeeRequestDTO requestDTO) {
         EmployeeResponseDTO responseDTO = new EmployeeResponseDTO(service.create(requestDTO));
-        return ResponseEntity.ok(responseDTO);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(responseDTO.id())
+                .toUri();
+
+        return ResponseEntity.created(location).body(responseDTO);
     }
+
 
     @Operation(summary = "Atualiza os serviços de um funcionário", description = "Atualiza os serviços vinculados a um funcionário")
     @ApiResponses(value = {
@@ -66,7 +77,8 @@ public class EmployeeController {
     @GetMapping
     public ResponseEntity<Page<EmployeeResponseDTO>> list(@RequestParam(defaultValue = "0") @Parameter(description = "Número da página de resultados") Integer page,
                                                           @RequestParam(defaultValue = "10") @Parameter(description = "Número de itens por página") Integer size) {
-        return ResponseEntity.ok(service.list(page, size));
+        Page<EmployeeResponseDTO> responseDTO = service.list(page, size).map(EmployeeResponseDTO::new);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @Operation(summary = "Deleta um funcionário", description = "Remove logicamente um funcionário pelo ID")

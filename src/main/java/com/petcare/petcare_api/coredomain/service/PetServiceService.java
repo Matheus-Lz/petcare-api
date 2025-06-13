@@ -1,7 +1,6 @@
 package com.petcare.petcare_api.coredomain.service;
 
 import com.petcare.petcare_api.application.dto.petServices.CreatePetServiceRequestDTO;
-import com.petcare.petcare_api.application.dto.petServices.PetServiceResponseDTO;
 import com.petcare.petcare_api.application.dto.petServices.UpdatePetServiceRequestDTO;
 import com.petcare.petcare_api.coredomain.model.PetService;
 import com.petcare.petcare_api.infrastructure.repository.PetServiceRepository;
@@ -49,9 +48,8 @@ public class PetServiceService {
                 .orElseThrow(() -> new IllegalArgumentException("PetService não encontrado"));
     }
 
-    public Page<PetServiceResponseDTO> list(Integer page, Integer size) {
-        Page<PetService> petServicePage = repository.findAllActive(PageRequest.of(page, size));
-        return petServicePage.map(PetServiceResponseDTO::new);
+    public Page<PetService> list(Integer page, Integer size) {
+        return repository.findAllActive(PageRequest.of(page, size));
     }
 
     public void delete(String id) {

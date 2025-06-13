@@ -5,8 +5,6 @@ import com.petcare.petcare_api.coredomain.model.user.User;
 import com.petcare.petcare_api.coredomain.model.user.enums.UserRole;
 import com.petcare.petcare_api.infrastructure.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -59,10 +57,6 @@ public class UserService implements UserDetailsService {
         newUser.validate();
 
         return repository.save(newUser);
-    }
-
-    public Page<User> listUsers(Integer page, Integer size) {
-        return repository.findAll(PageRequest.of(page, size));
     }
 
     public void updateUser(String userId, UpdateUserRequestDTO requestDTO) {

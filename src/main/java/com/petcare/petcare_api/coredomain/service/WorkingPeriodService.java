@@ -1,7 +1,6 @@
 package com.petcare.petcare_api.coredomain.service;
 
 import com.petcare.petcare_api.application.dto.workingPeriod.WorkingPeriodRequestDTO;
-import com.petcare.petcare_api.application.dto.workingPeriod.WorkingPeriodResponseDTO;
 import com.petcare.petcare_api.coredomain.model.WorkingPeriod;
 import com.petcare.petcare_api.infrastructure.repository.WorkingPeriodRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class WorkingPeriodService {
@@ -44,7 +42,7 @@ public class WorkingPeriodService {
         }
     }
 
-    public WorkingPeriodResponseDTO create(WorkingPeriodRequestDTO dto) {
+    public WorkingPeriod create(WorkingPeriodRequestDTO dto) {
         WorkingPeriod entity = WorkingPeriod.builder()
                 .dayOfWeek(dto.dayOfWeek())
                 .startTime(dto.startTime())
@@ -54,10 +52,10 @@ public class WorkingPeriodService {
         entity.validateInternalState();
         validateNoOverlap(dto.dayOfWeek(), dto.startTime(), dto.endTime(), null);
 
-        return toResponse(repository.save(entity));
+        return repository.save(entity);
     }
 
-    public WorkingPeriodResponseDTO update(String id, WorkingPeriodRequestDTO dto) {
+    public WorkingPeriod update(String id, WorkingPeriodRequestDTO dto) {
         WorkingPeriod entity = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Período de trabalho com ID " + id + " não encontrado."));
 
@@ -68,16 +66,15 @@ public class WorkingPeriodService {
         entity.validateInternalState();
         validateNoOverlap(dto.dayOfWeek(), dto.startTime(), dto.endTime(), entity.getId());
 
-        return toResponse(repository.save(entity));
+        return repository.save(entity);
     }
 
-    public List<WorkingPeriodResponseDTO> findAll() {
-        return repository.findAllByOrderByStartTimeAsc().stream().map(this::toResponse).collect(Collectors.toList());
+    public List<WorkingPeriod> findAll() {
+        return repository.findAllByOrderByStartTimeAsc();
     }
 
-    public WorkingPeriodResponseDTO findById(String id) {
+    public WorkingPeriod findById(String id) {
         return repository.findById(id)
-                .map(this::toResponse)
                 .orElseThrow(() -> new EntityNotFoundException("Período de trabalho com ID " + id + " não encontrado."));
     }
 
@@ -86,14 +83,5 @@ public class WorkingPeriodService {
             throw new EntityNotFoundException("Período de trabalho com ID " + id + " não encontrado para exclusão.");
         }
         repository.deleteById(id);
-    }
-
-    private WorkingPeriodResponseDTO toResponse(WorkingPeriod entity) {
-        return new WorkingPeriodResponseDTO(
-                entity.getId(),
-                entity.getDayOfWeek(),
-                entity.getStartTime(),
-                entity.getEndTime()
-        );
     }
 }

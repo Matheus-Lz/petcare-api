@@ -1,41 +1,56 @@
 package com.petcare.petcare_api.application.controller;
 
-import com.petcare.petcare_api.application.dto.schedulling.SchedullingRequestDTO;
-import com.petcare.petcare_api.application.dto.schedulling.SchedullingResponseDTO;
-import com.petcare.petcare_api.application.dto.schedulling.SchedullingResponseDetailDTO;
-import com.petcare.petcare_api.coredomain.service.SchedullingService;
+import com.petcare.petcare_api.application.dto.petServices.PetServiceResponseDTO;
+import com.petcare.petcare_api.application.dto.scheduling.SchedulingRequestDTO;
+import com.petcare.petcare_api.application.dto.scheduling.SchedulingResponseDTO;
+import com.petcare.petcare_api.application.dto.scheduling.SchedulingResponseDetailDTO;
+import com.petcare.petcare_api.coredomain.service.SchedulingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/schedullings")
-@RequiredArgsConstructor
-public class SchedullingController {
+@RequestMapping("/schedulings")
+public class SchedulingController {
 
-    private final SchedullingService service;
+    private final SchedulingService service;
+
+    @Autowired
+    public SchedulingController(SchedulingService service) {
+        this.service = service;
+    }
 
     @Operation(summary = "Cria um novo agendamento (sem funcionário atribuído)")
     @PostMapping
-    public ResponseEntity<SchedullingResponseDTO> create(
-            @RequestBody SchedullingRequestDTO dto) {
-        return ResponseEntity.ok(service.create(dto));
+    public ResponseEntity<SchedulingResponseDTO> create(
+            @RequestBody SchedulingRequestDTO dto) {
+        SchedulingResponseDTO responseDTO = new SchedulingResponseDTO(service.create(dto));
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(responseDTO.id())
+                .toUri();
+
+        return ResponseEntity.created(location).body(responseDTO);
     }
 
     @Operation(summary = "Busca um agendamento pelo ID")
     @GetMapping("/{id}")
-    public ResponseEntity<SchedullingResponseDetailDTO> findById(
+    public ResponseEntity<SchedulingResponseDetailDTO> findById(
             @Parameter(description = "ID do agendamento") @PathVariable String id) {
-        SchedullingResponseDetailDTO response = new SchedullingResponseDetailDTO(service.findById(id));
+        SchedulingResponseDetailDTO response = new SchedulingResponseDetailDTO(service.findById(id));
         return ResponseEntity.ok(response);
     }
 
@@ -67,11 +82,11 @@ public class SchedullingController {
 
     @Operation(summary = "Busca os agendamentos do usuário logado com paginação")
     @GetMapping("/user")
-    public ResponseEntity<Page<SchedullingResponseDetailDTO>> findUserSchedullings(
+    public ResponseEntity<Page<SchedulingResponseDetailDTO>> findUserSchedulings(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-
-        return ResponseEntity.ok(service.findByCurrentUser(page, size));
+        Page<SchedulingResponseDetailDTO> responseDetailDTO = service.findByCurrentUser(page, size).map(SchedulingResponseDetailDTO::new);
+        return ResponseEntity.ok(responseDetailDTO);
     }
 
 }

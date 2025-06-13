@@ -1,7 +1,6 @@
 package com.petcare.petcare_api.coredomain.service;
 
 import com.petcare.petcare_api.application.dto.employee.CreateEmployeeRequestDTO;
-import com.petcare.petcare_api.application.dto.employee.EmployeeResponseDTO;
 import com.petcare.petcare_api.application.dto.employee.UpdateEmployeeRequestDTO;
 import com.petcare.petcare_api.coredomain.model.Employee;
 import com.petcare.petcare_api.coredomain.model.PetService;
@@ -56,9 +55,8 @@ public class EmployeeService {
                 .orElseThrow(() -> new IllegalArgumentException("Funcionário não encontrado"));
     }
 
-    public Page<EmployeeResponseDTO> list(Integer page, Integer size) {
-        Page<Employee> employeesList = repository.findAll(PageRequest.of(page, size));
-        return employeesList.map(EmployeeResponseDTO::new);
+    public Page<Employee> list(Integer page, Integer size) {
+        return repository.findAll(PageRequest.of(page, size));
     }
 
     public void delete(String id) {

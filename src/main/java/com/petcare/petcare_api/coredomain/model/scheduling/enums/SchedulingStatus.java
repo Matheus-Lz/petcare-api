@@ -1,9 +1,9 @@
-package com.petcare.petcare_api.coredomain.model.schedulling.enums;
+package com.petcare.petcare_api.coredomain.model.scheduling.enums;
 
 import lombok.Getter;
 
 @Getter
-public enum SchedullingStatus {
+public enum SchedulingStatus {
     WAITING_FOR_ARRIVAL("Aguardando chegada do pet"),
     PENDING("Pendente"),
     IN_PROGRESS("Em progresso"),
@@ -13,7 +13,7 @@ public enum SchedullingStatus {
 
     private final String descricao;
 
-    SchedullingStatus(String descricao) {
+    SchedulingStatus(String descricao) {
         this.descricao = descricao;
     }
 

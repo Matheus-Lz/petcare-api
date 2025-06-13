@@ -39,7 +39,7 @@ public class SecurityConfigurations {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/schedullings/**").permitAll()
+                        .requestMatchers("/schedulings/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/pet-services/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/pet-services/**").hasAnyRole("SUPER_ADMIN", "EMPLOYEE")
                         .requestMatchers(HttpMethod.PUT, "/pet-services/**").hasAnyRole("SUPER_ADMIN", "EMPLOYEE")

@@ -8,10 +8,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/pet-services")
@@ -24,16 +28,19 @@ public class PetServiceController {
         this.service = service;
     }
 
-    @Operation(summary = "Cria um novo serviço de pet", description = "Cria um novo serviço de pet com os dados fornecidos")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Serviço de pet criado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos")
-    })
     @PostMapping
-    public ResponseEntity<PetServiceResponseDTO> create(@RequestBody @Parameter(description = "Dados para criar um serviço de pet") CreatePetServiceRequestDTO requestDTO) {
+    public ResponseEntity<PetServiceResponseDTO> create(@RequestBody @Valid CreatePetServiceRequestDTO requestDTO) {
         PetServiceResponseDTO responseDTO = new PetServiceResponseDTO(service.create(requestDTO));
-        return ResponseEntity.ok(responseDTO);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(responseDTO.id())
+                .toUri();
+
+        return ResponseEntity.created(location).body(responseDTO);
     }
+
 
     @Operation(summary = "Atualiza um serviço de pet existente", description = "Atualiza os dados de um serviço de pet existente baseado no ID fornecido")
     @ApiResponses(value = {
@@ -66,7 +73,7 @@ public class PetServiceController {
     public ResponseEntity<Page<PetServiceResponseDTO>> list(
             @RequestParam(defaultValue = "0") @Parameter(description = "Número da página de resultados") Integer page,
             @RequestParam(defaultValue = "10") @Parameter(description = "Número de itens por página") Integer size) {
-        Page<PetServiceResponseDTO> petServices = service.list(page, size);
+        Page<PetServiceResponseDTO> petServices = service.list(page, size).map(PetServiceResponseDTO::new);;
         return ResponseEntity.ok(petServices);
     }
 

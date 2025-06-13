@@ -1,14 +1,11 @@
 package com.petcare.petcare_api.coredomain.service;
 
-import com.petcare.petcare_api.application.dto.schedulling.SchedullingRequestDTO;
-import com.petcare.petcare_api.application.dto.schedulling.SchedullingResponseDTO;
-import com.petcare.petcare_api.application.dto.schedulling.SchedullingResponseDetailDTO;
+import com.petcare.petcare_api.application.dto.scheduling.SchedulingRequestDTO;
 import com.petcare.petcare_api.coredomain.model.*;
 
-import com.petcare.petcare_api.coredomain.model.schedulling.Schedulling;
-import com.petcare.petcare_api.coredomain.model.schedulling.enums.SchedullingStatus;
-import com.petcare.petcare_api.infrastructure.repository.PetServiceRepository;
-import com.petcare.petcare_api.infrastructure.repository.SchedullingRepository;
+import com.petcare.petcare_api.coredomain.model.scheduling.Scheduling;
+import com.petcare.petcare_api.coredomain.model.scheduling.enums.SchedulingStatus;
+import com.petcare.petcare_api.infrastructure.repository.SchedulingRepository;
 import com.petcare.petcare_api.infrastructure.repository.WorkingPeriodRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,56 +23,55 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class SchedullingService {
+public class SchedulingService {
 
-    private final SchedullingRepository repository;
+    private final SchedulingRepository repository;
     private final UserService userService;
-    private final PetServiceRepository petServiceRepository;
+    private final PetServiceService petServiceService;
     private final WorkingPeriodRepository workingPeriodRepository;
 
     @Autowired
-    public SchedullingService(SchedullingRepository repository, UserService userService, PetServiceRepository petServiceRepository, WorkingPeriodRepository workingPeriodRepository) {
+    public SchedulingService(SchedulingRepository repository, UserService userService, PetServiceService petServiceService, WorkingPeriodRepository workingPeriodRepository) {
         this.repository = repository;
         this.userService = userService;
-        this.petServiceRepository = petServiceRepository;
+        this.petServiceService = petServiceService;
         this.workingPeriodRepository = workingPeriodRepository;
     }
 
-    public SchedullingResponseDTO create(SchedullingRequestDTO dto) {
-        PetService petService = petServiceRepository.findById(dto.petServiceId())
-                .orElseThrow(() -> new EntityNotFoundException("PetService not found"));
+    public Scheduling create(SchedulingRequestDTO dto) {
+        PetService petService = petServiceService.getById(dto.petServiceId());
 
-        validateSchedullingTime(dto.schedullingHour(), petService);
+        validateSchedulingTime(dto.schedulingHour(), petService);
 
-        Schedulling schedulling = Schedulling.builder()
+        Scheduling scheduling = Scheduling.builder()
                 .user(userService.getCurrentUser())
                 .petService(petService)
-                .schedullingHour(dto.schedullingHour())
+                .schedulingHour(dto.schedulingHour())
                 .employee(null)
-                .status(SchedullingStatus.WAITING_FOR_ARRIVAL)
+                .status(SchedulingStatus.WAITING_FOR_ARRIVAL)
                 .build();
 
-        return new SchedullingResponseDTO(repository.save(schedulling));
+        return repository.save(scheduling);
     }
 
-    public Schedulling findById(String id) {
+    public Scheduling findById(String id) {
         return repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Schedulling not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Agendamento não encontrado"));
     }
 
     public void delete(String id) {
         repository.deleteById(id);
     }
 
-    public void validateSchedullingTime(LocalDateTime schedullingHour, PetService petService) {
-        DayOfWeek dayOfWeek = schedullingHour.getDayOfWeek();
+    public void validateSchedulingTime(LocalDateTime schedulingHour, PetService petService) {
+        DayOfWeek dayOfWeek = schedulingHour.getDayOfWeek();
         List<WorkingPeriod> workingPeriods = workingPeriodRepository.findAllByDayOfWeek(dayOfWeek);
 
         if (workingPeriods.isEmpty()) {
             throw new EntityNotFoundException("Não foi encontrado período de trabalho para o dia selecionado");
         }
 
-        LocalTime start = schedullingHour.toLocalTime();
+        LocalTime start = schedulingHour.toLocalTime();
         LocalTime end = start.plusMinutes(petService.getTime());
 
         boolean fitsInAnyPeriod = workingPeriods.stream().anyMatch(period ->
@@ -89,8 +85,7 @@ public class SchedullingService {
 
 
     public List<LocalTime> getAvailableTimes(String petServiceId, LocalDate date) {
-        PetService petService = petServiceRepository.findById(petServiceId)
-                .orElseThrow(() -> new EntityNotFoundException("PetService not found"));
+        PetService petService = petServiceService.getById(petServiceId);
 
         DayOfWeek dayOfWeek = date.getDayOfWeek();
         List<WorkingPeriod> workingPeriods = workingPeriodRepository.findAllByDayOfWeek(dayOfWeek);
@@ -101,7 +96,7 @@ public class SchedullingService {
 
         LocalDateTime startOfDay = date.atTime(0, 0);
         LocalDateTime endOfDay = date.atTime(23, 59);
-        List<Schedulling> schedullings = repository.findBySchedullingHourBetween(startOfDay, endOfDay);
+        List<Scheduling> schedulings = repository.findBySchedulingHourBetween(startOfDay, endOfDay);
 
         int duration = petService.getTime();
         List<LocalTime> availableTimes = new ArrayList<>();
@@ -112,9 +107,9 @@ public class SchedullingService {
             while (!cursor.plusMinutes(duration).isAfter(period.getEndTime())) {
                 LocalTime finalCursor = cursor;
 
-                boolean conflicts = schedullings.stream().anyMatch(s ->
-                        !s.getSchedullingHour().toLocalTime().isAfter(finalCursor.plusMinutes(duration).minusSeconds(1)) &&
-                                !s.getSchedullingHour().toLocalTime().plusMinutes(s.getPetService().getTime()).isBefore(finalCursor)
+                boolean conflicts = schedulings.stream().anyMatch(s ->
+                        !s.getSchedulingHour().toLocalTime().isAfter(finalCursor.plusMinutes(duration).minusSeconds(1)) &&
+                                !s.getSchedulingHour().toLocalTime().plusMinutes(s.getPetService().getTime()).isBefore(finalCursor)
                 );
 
                 if (!conflicts) {
@@ -129,8 +124,7 @@ public class SchedullingService {
     }
 
     public List<LocalDate> getAvailableDays(String petServiceId, LocalDate monthStart) {
-        petServiceRepository.findById(petServiceId)
-                .orElseThrow(() -> new EntityNotFoundException("Serviço não encontrado"));
+        petServiceService.getById(petServiceId);
 
         LocalDate monthEnd = monthStart.withDayOfMonth(monthStart.lengthOfMonth());
         List<LocalDate> availableDays = new ArrayList<>();
@@ -150,12 +144,11 @@ public class SchedullingService {
         return availableDays;
     }
 
-    public Page<SchedullingResponseDetailDTO> findByCurrentUser(int page, int size) {
+    public Page<Scheduling> findByCurrentUser(int page, int size) {
         var user = userService.getCurrentUser();
         Pageable pageable = PageRequest.of(page, size, Sort.by("dateCreated").descending());
 
-        Page<Schedulling> schedullingPage = repository.findByUserId(user.getId(), pageable);
-        return schedullingPage.map(SchedullingResponseDetailDTO::new);
+        return repository.findByUserId(user.getId(), pageable);
     }
 
 }
