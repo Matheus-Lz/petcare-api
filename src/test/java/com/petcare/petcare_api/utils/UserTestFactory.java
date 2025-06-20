@@ -28,6 +28,7 @@ public class UserTestFactory {
     public static UpdateUserRequestDTO buildUpdateRequest() {
         return new UpdateUserRequestDTO(
                 UPDATED_EMAIL,
+                DEFAULT_PASSWORD,
                 UPDATED_PASSWORD,
                 UPDATED_CPFCNPJ,
                 UPDATED_NAME
