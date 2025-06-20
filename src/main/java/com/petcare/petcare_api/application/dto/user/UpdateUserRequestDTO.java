@@ -14,6 +14,10 @@ public record UpdateUserRequestDTO(
         @Size(min = 6, message = "A senha deve ter pelo menos 6 caracteres")
         String password,
 
+        @NotNull(message = "A senha é obrigatória")
+        @Size(min = 6, message = "A senha deve ter pelo menos 6 caracteres")
+        String currentPassword,
+
         @NotNull(message = "O cpfCnpj é obrigatória")
         @Size(max = 14, message = "O cpfCnpj deve ter no máximo 14 caracteres")
         String cpfCnpj,
