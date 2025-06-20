@@ -56,6 +56,24 @@ public class SchedulingService {
         return repository.save(scheduling);
     }
 
+    public Scheduling update(String id, SchedulingRequestDTO dto) {
+        Scheduling scheduling = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Agendamento não encontrado"));
+
+        if (scheduling.getStatus() != SchedulingStatus.WAITING_FOR_ARRIVAL) {
+            throw new IllegalStateException("Agendamentos só podem ser editados se estiverem aguardando chegada");
+        }
+
+        PetService petService = petServiceService.getById(dto.petServiceId());
+
+        validateSchedulingTime(dto.schedulingHour(), petService);
+
+        scheduling.setPetService(petService);
+        scheduling.setSchedulingHour(dto.schedulingHour());
+
+        return repository.save(scheduling);
+    }
+
     public Scheduling findById(String id) {
         return repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Agendamento não encontrado"));

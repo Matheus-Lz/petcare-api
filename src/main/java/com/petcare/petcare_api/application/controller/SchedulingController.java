@@ -47,6 +47,16 @@ public class SchedulingController {
         return ResponseEntity.created(location).body(responseDTO);
     }
 
+    @Operation(summary = "Atualiza os dados de um agendamento")
+    @PutMapping("/{id}")
+    public ResponseEntity<SchedulingResponseDTO> update(
+            @PathVariable String id,
+            @RequestBody SchedulingRequestDTO dto) {
+
+        var updated = service.update(id, dto);
+        return ResponseEntity.ok(new SchedulingResponseDTO(updated));
+    }
+
     @Operation(summary = "Busca um agendamento pelo ID")
     @GetMapping("/{id}")
     public ResponseEntity<SchedulingResponseDetailDTO> findById(
