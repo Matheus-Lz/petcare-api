@@ -1,9 +1,9 @@
 package com.petcare.petcare_api.application.controller;
 
-import com.petcare.petcare_api.application.dto.petServices.PetServiceResponseDTO;
 import com.petcare.petcare_api.application.dto.scheduling.SchedulingRequestDTO;
 import com.petcare.petcare_api.application.dto.scheduling.SchedulingResponseDTO;
 import com.petcare.petcare_api.application.dto.scheduling.SchedulingResponseDetailDTO;
+import com.petcare.petcare_api.application.dto.scheduling.UpdateSchedulingStatusRequestDTO;
 import com.petcare.petcare_api.coredomain.service.SchedulingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,6 +19,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/schedulings")
@@ -87,6 +88,29 @@ public class SchedulingController {
             @RequestParam(defaultValue = "10") int size) {
         Page<SchedulingResponseDetailDTO> responseDetailDTO = service.findByCurrentUser(page, size).map(SchedulingResponseDetailDTO::new);
         return ResponseEntity.ok(responseDetailDTO);
+    }
+
+    @GetMapping("/by-date")
+    public ResponseEntity<List<SchedulingResponseDetailDTO>> getSchedulingsByDate(
+            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        var schedulings = service.findByDate(date);
+        var dtos = schedulings.stream()
+                .map(SchedulingResponseDetailDTO::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+    }
+
+    @PatchMapping("/{id}/delegate")
+    public ResponseEntity<Void> delegateToCurrentUser(@PathVariable String id) {
+        service.delegateToUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Void> updateStatus(@PathVariable String id,
+                                             @RequestBody UpdateSchedulingStatusRequestDTO request) {
+        service.updateStatus(id, request.status());
+        return ResponseEntity.noContent().build();
     }
 
 }

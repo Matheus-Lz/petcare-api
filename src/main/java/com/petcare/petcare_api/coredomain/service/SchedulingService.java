@@ -29,13 +29,15 @@ public class SchedulingService {
     private final UserService userService;
     private final PetServiceService petServiceService;
     private final WorkingPeriodRepository workingPeriodRepository;
+    private final EmployeeService employeeService;
 
     @Autowired
-    public SchedulingService(SchedulingRepository repository, UserService userService, PetServiceService petServiceService, WorkingPeriodRepository workingPeriodRepository) {
+    public SchedulingService(SchedulingRepository repository, UserService userService, PetServiceService petServiceService, WorkingPeriodRepository workingPeriodRepository, EmployeeService employeeService) {
         this.repository = repository;
         this.userService = userService;
         this.petServiceService = petServiceService;
         this.workingPeriodRepository = workingPeriodRepository;
+        this.employeeService = employeeService;
     }
 
     public Scheduling create(SchedulingRequestDTO dto) {
@@ -149,6 +151,29 @@ public class SchedulingService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("dateCreated").descending());
 
         return repository.findByUserId(user.getId(), pageable);
+    }
+
+    public List<Scheduling> findByDate(LocalDate date) {
+        var start = date.atStartOfDay();
+        var end = date.plusDays(1).atStartOfDay();
+        return repository.findBySchedulingHourBetween(start, end);
+    }
+
+    public void delegateToUser(String schedulingId) {
+        Scheduling scheduling = repository.findById(schedulingId)
+                .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
+
+        Employee employee = employeeService.getByUserId(userService.getCurrentUser().getId());
+
+        scheduling.setEmployee(employee);
+        repository.save(scheduling);
+    }
+
+    public void updateStatus(String schedulingId, SchedulingStatus status) {
+        Scheduling scheduling = repository.findById(schedulingId)
+                .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
+        scheduling.setStatus(status);
+        repository.save(scheduling);
     }
 
 }
