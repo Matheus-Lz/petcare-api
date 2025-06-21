@@ -16,19 +16,23 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService implements UserDetailsService {
 
     private final TokenService tokenService;
+    private final EmailService emailService;
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(TokenService tokenService, UserRepository repository, PasswordEncoder passwordEncoder) {
+    public UserService(TokenService tokenService, EmailService emailService, UserRepository repository, PasswordEncoder passwordEncoder) {
         this.tokenService = tokenService;
+        this.emailService = emailService;
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -106,6 +110,31 @@ public class UserService implements UserDetailsService {
 
         return optionalUser.get();
     }
+
+    public void sendResetToken(String email) {
+        User user = repository.findUserByEmail(email);
+        if (user == null) throw new IllegalArgumentException("Email não encontrado");
+
+        String token = UUID.randomUUID().toString();
+        user.setResetToken(token);
+        user.setResetTokenExpiration(LocalDateTime.now().plusMinutes(15));
+        repository.save(user);
+
+        this.emailService.sendHtml(email, "Redefinição de senha", this.emailService.resetToken(token));
+    }
+
+    public void resetPassword(String token, String newPassword) {
+        User user = repository.findByResetToken(token).orElseThrow();
+        if (user.getResetTokenExpiration().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Token inválido ou expirado");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setResetToken(null);
+        user.setResetTokenExpiration(null);
+        repository.save(user);
+    }
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

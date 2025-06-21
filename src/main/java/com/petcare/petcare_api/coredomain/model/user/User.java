@@ -12,6 +12,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -40,6 +41,12 @@ public class User extends BaseModel implements UserDetails {
     @Convert(converter = UserRoleConverter.class)
     @Column(name = "role", nullable = false)
     private UserRole role;
+
+    @Column(name = "reset_token")
+    private String resetToken;
+
+    @Column(name = "reset_token_expiration")
+    private LocalDateTime resetTokenExpiration;
 
     public void validate() {
         if (!StringUtils.hasText(this.email)) {

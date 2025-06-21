@@ -4,12 +4,12 @@ import com.petcare.petcare_api.coredomain.model.user.User;
 import lombok.Data;
 
 @Data
-public class UserResponse {
+public class UserResponseDTO {
     private String email;
     private String cpfCnpj;
     private String name;
 
-    public UserResponse(User user) {
+    public UserResponseDTO(User user) {
         this.email = user.getEmail();
         this.cpfCnpj = user.getCpfCnpj();
         this.name = user.getName();

@@ -34,13 +34,25 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById() {
-        return ResponseEntity.ok(new UserResponse(service.getCurrentUser()));
+    public ResponseEntity<UserResponseDTO> getUserById() {
+        return ResponseEntity.ok(new UserResponseDTO(service.getCurrentUser()));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody UpdateUserRequestDTO updateDTO) {
         service.updateUser(id, updateDTO);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequestDTO dto) {
+        service.sendResetToken(dto.email());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordDTO dto) {
+        service.resetPassword(dto.token(), dto.newPassword());
         return ResponseEntity.ok().build();
     }
 }
