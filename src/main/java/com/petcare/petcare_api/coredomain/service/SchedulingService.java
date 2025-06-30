@@ -59,8 +59,7 @@ public class SchedulingService {
     }
 
     public Scheduling update(String id, SchedulingRequestDTO dto) {
-        Scheduling scheduling = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Agendamento não encontrado"));
+        Scheduling scheduling = this.findById(id);
 
         if (scheduling.getStatus() != SchedulingStatus.WAITING_FOR_ARRIVAL) {
             throw new IllegalStateException("Agendamentos só podem ser editados se estiverem aguardando chegada");
@@ -180,8 +179,7 @@ public class SchedulingService {
     }
 
     public void delegateToUser(String schedulingId, String employeeId) {
-        Scheduling scheduling = repository.findById(schedulingId)
-                .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
+        Scheduling scheduling = this.findById(schedulingId);
 
         Employee employee = employeeService.getById(employeeId);
 
@@ -190,8 +188,7 @@ public class SchedulingService {
     }
 
     public void updateStatus(String schedulingId, SchedulingStatus status) {
-        Scheduling scheduling = repository.findById(schedulingId)
-                .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
+        Scheduling scheduling = this.findById(schedulingId);
 
         scheduling.setStatus(status);
         repository.save(scheduling);

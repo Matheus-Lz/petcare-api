@@ -28,7 +28,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequestDTO requestDTO) {
+    public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequestDTO requestDTO) {
         service.registerUser(requestDTO);
         return ResponseEntity.ok().build();
     }
@@ -39,19 +39,19 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody UpdateUserRequestDTO updateDTO) {
+    public ResponseEntity<Void> updateUser(@PathVariable String id, @RequestBody UpdateUserRequestDTO updateDTO) {
         service.updateUser(id, updateDTO);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequestDTO dto) {
+    public ResponseEntity<Void> forgotPassword(@RequestBody ForgotPasswordRequestDTO dto) {
         service.sendResetToken(dto.email());
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordDTO dto) {
+    public ResponseEntity<Void> resetPassword(@RequestBody ResetPasswordDTO dto) {
         service.resetPassword(dto.token(), dto.newPassword());
         return ResponseEntity.ok().build();
     }
