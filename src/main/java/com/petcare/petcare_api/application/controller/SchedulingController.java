@@ -110,9 +110,9 @@ public class SchedulingController {
         return ResponseEntity.ok(dtos);
     }
 
-    @PatchMapping("/{id}/delegate")
-    public ResponseEntity<Void> delegateToCurrentUser(@PathVariable String id) {
-        service.delegateToUser(id);
+    @PatchMapping("/{id}/delegate/{employeeId}")
+    public ResponseEntity<Void> delegateToCurrentUser(@PathVariable String id, @PathVariable String employeeId) {
+        service.delegateToUser(id, employeeId);
         return ResponseEntity.noContent().build();
     }
 

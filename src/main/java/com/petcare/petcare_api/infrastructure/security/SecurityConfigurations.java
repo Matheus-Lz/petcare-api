@@ -44,7 +44,7 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "/pet-services/**").hasAnyRole("SUPER_ADMIN", "EMPLOYEE")
                         .requestMatchers(HttpMethod.PUT, "/pet-services/**").hasAnyRole("SUPER_ADMIN", "EMPLOYEE")
                         .requestMatchers(HttpMethod.DELETE, "/pet-services/**").hasAnyRole("SUPER_ADMIN", "EMPLOYEE")
-                        .requestMatchers("/employees/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/employees/**").hasAnyRole("SUPER_ADMIN", "EMPLOYEE")
                         .requestMatchers("/working-periods/**").hasAnyRole("SUPER_ADMIN", "EMPLOYEE")
                         .requestMatchers("/user/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/development/doc").permitAll()

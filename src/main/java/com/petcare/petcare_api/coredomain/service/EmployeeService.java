@@ -55,11 +55,6 @@ public class EmployeeService {
                 .orElseThrow(() -> new IllegalArgumentException("Funcionário não encontrado"));
     }
 
-    public Employee getByUserId(String userId) {
-        return repository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Funcionário não encontrado"));
-    }
-
     public Page<Employee> list(Integer page, Integer size) {
         return repository.findAll(PageRequest.of(page, size));
     }

@@ -110,4 +110,63 @@ public class EmailService {
                 </html>
                 """.formatted(token);
     }
+
+    public String waitingForPickupEmail(String name, String serviceName) {
+        return """
+            <html>
+              <head>
+                <meta charset="UTF-8">
+                <style>
+                  body {
+                    margin: 0;
+                    padding: 0;
+                    background: linear-gradient(135deg, #2536a7, #5c6ff5);
+                    font-family: 'Arial', sans-serif;
+                    color: #fff;
+                  }
+                  .container {
+                    background: #fff;
+                    color: #333;
+                    max-width: 500px;
+                    margin: 40px auto;
+                    border-radius: 10px;
+                    padding: 40px 30px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                  }
+                  .title {
+                    font-size: 24px;
+                    font-weight: bold;
+                    text-align: center;
+                    margin-bottom: 25px;
+                    color: #2536a7;
+                  }
+                  .content {
+                    font-size: 16px;
+                    line-height: 1.6;
+                  }
+                  .footer {
+                    font-size: 12px;
+                    text-align: center;
+                    color: #888;
+                    margin-top: 30px;
+                  }
+                </style>
+              </head>
+              <body>
+                <div class="container">
+                  <div class="title">Seu pet está pronto para ser retirado!</div>
+                  <div class="content">
+                    <p>Olá, %s!</p>
+                    <p>O serviço <strong>%s</strong> foi finalizado com sucesso.</p>
+                    <p>Seu pet está pronto para ser retirado na PetCare.</p>
+                    <p>Obrigado por confiar na gente! 🐾</p>
+                  </div>
+                  <div class="footer">
+                    Este é um e-mail automático. Não é necessário respondê-lo.
+                  </div>
+                </div>
+              </body>
+            </html>
+            """.formatted(name, serviceName);
+    }
 }
