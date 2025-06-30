@@ -1,6 +1,5 @@
 package com.petcare.petcare_api.infrastructure.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -25,12 +24,15 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfigurations {
 
-    @Autowired
+    private static final String PET_SERVICES_PATH = "/pet-services/**";
+    private static final String ROLE_SUPER_ADMIN = "SUPER_ADMIN";
+    private static final String ROLE_EMPLOYEE = "EMPLOYEE";
+
+    private final SecurityFilter securityFilter;
+
     public SecurityConfigurations(SecurityFilter securityFilter) {
         this.securityFilter = securityFilter;
     }
-
-    private final SecurityFilter securityFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -40,12 +42,12 @@ public class SecurityConfigurations {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/schedulings/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/pet-services/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/pet-services/**").hasAnyRole("SUPER_ADMIN", "EMPLOYEE")
-                        .requestMatchers(HttpMethod.PUT, "/pet-services/**").hasAnyRole("SUPER_ADMIN", "EMPLOYEE")
-                        .requestMatchers(HttpMethod.DELETE, "/pet-services/**").hasAnyRole("SUPER_ADMIN", "EMPLOYEE")
-                        .requestMatchers("/employees/**").hasAnyRole("SUPER_ADMIN", "EMPLOYEE")
-                        .requestMatchers("/working-periods/**").hasAnyRole("SUPER_ADMIN", "EMPLOYEE")
+                        .requestMatchers(HttpMethod.GET, PET_SERVICES_PATH).permitAll()
+                        .requestMatchers(HttpMethod.POST, PET_SERVICES_PATH).hasAnyRole(ROLE_SUPER_ADMIN, ROLE_EMPLOYEE)
+                        .requestMatchers(HttpMethod.PUT, PET_SERVICES_PATH).hasAnyRole(ROLE_SUPER_ADMIN, ROLE_EMPLOYEE)
+                        .requestMatchers(HttpMethod.DELETE, PET_SERVICES_PATH).hasAnyRole(ROLE_SUPER_ADMIN, ROLE_EMPLOYEE)
+                        .requestMatchers("/employees/**").hasAnyRole(ROLE_SUPER_ADMIN, ROLE_EMPLOYEE)
+                        .requestMatchers("/working-periods/**").hasAnyRole(ROLE_SUPER_ADMIN, ROLE_EMPLOYEE)
                         .requestMatchers("/user/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/development/doc").permitAll()
                 )
@@ -53,16 +55,15 @@ public class SecurityConfigurations {
                 .build();
     }
 
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
+        var configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:3000"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        var source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
