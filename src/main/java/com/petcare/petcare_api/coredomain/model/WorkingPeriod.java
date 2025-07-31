@@ -1,5 +1,6 @@
 package com.petcare.petcare_api.coredomain.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.petcare.petcare_api.infrastructure.baseEntities.BaseModel;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,9 +24,11 @@ public class WorkingPeriod extends BaseModel {
     private DayOfWeek dayOfWeek;
 
     @Column(name = "start_time", nullable = false)
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime startTime;
 
     @Column(name = "end_time", nullable = false)
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime endTime;
 
     public void validateInternalState() {

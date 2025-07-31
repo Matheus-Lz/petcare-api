@@ -2,6 +2,7 @@ package com.petcare.petcare_api.application.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.petcare.petcare_api.application.dto.user.*;
+import com.petcare.petcare_api.coredomain.model.user.User;
 import com.petcare.petcare_api.coredomain.service.UserService;
 import com.petcare.petcare_api.utils.UserTestFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,6 +72,43 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(authRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value("mocked-token"));
+                .andExpect(jsonPath("$.token").value("mocked-token"))
+                .andExpect(jsonPath("$.role").value("role"))
+                .andExpect(jsonPath("$.name").value("name"))
+                .andExpect(jsonPath("$.userId").value("userId"));
+    }
+
+    @Test
+    void shouldReturnUserById() throws Exception {
+        User user = UserTestFactory.buildUser();
+        UserResponseDTO userResponse = new UserResponseDTO(user);
+
+        when(userService.getCurrentUser()).thenReturn(user);
+
+        mockMvc.perform(get("/user/123"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value(userResponse.getEmail()))
+                .andExpect(jsonPath("$.cpfCnpj").value(userResponse.getCpfCnpj()))
+                .andExpect(jsonPath("$.name").value(userResponse.getName()));
+    }
+
+    @Test
+    void shouldSendForgotPasswordEmail() throws Exception {
+        ForgotPasswordRequestDTO dto = new ForgotPasswordRequestDTO("test@example.com");
+
+        mockMvc.perform(post("/user/forgot-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldResetPassword() throws Exception {
+        ResetPasswordDTO dto = new ResetPasswordDTO("reset-token-123", "newSecurePassword");
+
+        mockMvc.perform(post("/user/reset-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isOk());
     }
 }

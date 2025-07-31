@@ -42,6 +42,16 @@ public class UserTestFactory {
         );
     }
 
+    public static User buildUser() {
+        return User.builder()
+                .email(DEFAULT_EMAIL)
+                .password("encodedpassword")
+                .cpfCnpj(DEFAULT_CPFCNPJ)
+                .name(DEFAULT_NAME)
+                .role(UserRole.USER)
+                .build();
+    }
+
     public static User buildUser(UserRole role) {
         return User.builder()
                 .email(DEFAULT_EMAIL)
