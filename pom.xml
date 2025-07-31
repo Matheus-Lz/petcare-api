@@ -19,7 +19,7 @@
     <description>Demo project for Spring Boot</description>
 
     <properties>
-        <java.version>23</java.version>
+        <java.version>21</java.version>
         <sonar.organization>matheus-lz</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
@@ -157,23 +157,6 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>1.18.30</version>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
-
-            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
@@ -198,15 +181,12 @@
                             </execution>
                             <execution>
                                 <id>report</id>
-                                <phase>verify</phase>
                                 <goals>
                                     <goal>report</goal>
                                 </goals>
                                 <configuration>
-                                    <outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
                                     <formats>
                                         <format>XML</format>
-                                        <format>HTML</format>
                                     </formats>
                                 </configuration>
                             </execution>
