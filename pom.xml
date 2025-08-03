@@ -145,6 +145,12 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>**/com/petcare/petcare_api/PetcareApiApplication.*</exclude>
+                        <exclude>**/com/petcare/petcare_api/infrastructure/**</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
