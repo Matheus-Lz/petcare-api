@@ -23,8 +23,11 @@ public abstract class BaseModelWithUser extends BaseModel {
     @PrePersist
     @Transactional
     public void setUser() {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (user != null) this.user = user;
+        User authenticatedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (authenticatedUser != null) {
+            this.user = authenticatedUser;
+        }
     }
 }
 

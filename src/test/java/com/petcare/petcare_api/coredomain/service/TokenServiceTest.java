@@ -1,5 +1,6 @@
 package com.petcare.petcare_api.coredomain.service;
 
+import com.petcare.petcare_api.infrastructure.exception.UserExceptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -28,7 +29,7 @@ class TokenServiceTest {
 
     @Test
     void shouldThrowExceptionWhenTokenIsInvalid() {
-        Exception exception = assertThrows(Exception.class, () -> {
+        Exception exception = assertThrows(UserExceptions.InvalidTokenException.class, () -> {
             tokenService.validateToken("invalid.token.value");
         });
 

@@ -19,7 +19,6 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/schedulings")
@@ -105,8 +104,7 @@ public class SchedulingController {
             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         var schedulings = service.findByDate(date);
         var dtos = schedulings.stream()
-                .map(SchedulingResponseDetailDTO::new)
-                .collect(Collectors.toList());
+                .map(SchedulingResponseDetailDTO::new).toList();
         return ResponseEntity.ok(dtos);
     }
 

@@ -4,6 +4,10 @@ import java.util.regex.Pattern;
 
 public class CpfCnpjUtils {
 
+    private CpfCnpjUtils() {
+        throw new IllegalStateException("Classe utilitária não deve ser instanciada.");
+    }
+
     private static final Pattern CPF_PATTERN = Pattern.compile("\\d{11}");
     private static final Pattern CNPJ_PATTERN = Pattern.compile("\\d{14}");
 

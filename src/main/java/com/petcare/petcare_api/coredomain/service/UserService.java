@@ -3,6 +3,7 @@ package com.petcare.petcare_api.coredomain.service;
 import com.petcare.petcare_api.application.dto.user.*;
 import com.petcare.petcare_api.coredomain.model.user.User;
 import com.petcare.petcare_api.coredomain.model.user.enums.UserRole;
+import com.petcare.petcare_api.infrastructure.exception.UserExceptions;
 import com.petcare.petcare_api.infrastructure.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -88,11 +89,11 @@ public class UserService implements UserDetailsService {
 
         if (dto.password() != null && !dto.password().isBlank()) {
             if (dto.currentPassword() == null || dto.currentPassword().isBlank()) {
-                throw new RuntimeException("Senha atual é obrigatória para alterar a senha");
+                throw new UserExceptions.CurrentPasswordRequiredException();
             }
 
             if (!passwordEncoder.matches(dto.currentPassword(), user.getPassword())) {
-                throw new RuntimeException("Senha atual incorreta");
+                throw new UserExceptions.InvalidCurrentPasswordException();
             }
 
             user.setPassword(passwordEncoder.encode(dto.password()));

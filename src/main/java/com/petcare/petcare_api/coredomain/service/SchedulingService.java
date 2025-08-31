@@ -8,6 +8,8 @@ import com.petcare.petcare_api.coredomain.model.scheduling.enums.SchedulingStatu
 import com.petcare.petcare_api.infrastructure.repository.SchedulingRepository;
 import com.petcare.petcare_api.infrastructure.repository.WorkingPeriodRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +33,8 @@ public class SchedulingService {
     private final WorkingPeriodRepository workingPeriodRepository;
     private final EmployeeService employeeService;
     private final EmailService emailService;
+
+    private static final Logger logger = LoggerFactory.getLogger(SchedulingService.class);
 
     @Autowired
     public SchedulingService(SchedulingRepository repository, UserService userService, PetServiceService petServiceService, WorkingPeriodRepository workingPeriodRepository, EmployeeService employeeService, EmailService emailService) {
@@ -157,8 +161,9 @@ public class SchedulingService {
                     availableDays.add(date);
                 }
             } catch (EntityNotFoundException ignored) {
+                // Intencionalmente ignorado: ausência de entidade significa que não há horários disponíveis
             } catch (Exception e) {
-                System.err.printf("Erro ao verificar horários disponíveis para o dia %s: %s%n", date, e.getMessage());
+                logger.error("Erro ao verificar horários disponíveis para o dia {}: {}", date, e.getMessage(), e);
             }
         }
 

@@ -37,8 +37,7 @@ public class WorkingPeriodController {
     @GetMapping
     public ResponseEntity<List<WorkingPeriodResponseDTO>> findAll() {
         List<WorkingPeriodResponseDTO> list = service.findAll().stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+                .map(this::toResponse).toList();
         return ResponseEntity.ok(list);
     }
 
