@@ -2,11 +2,20 @@ package com.petcare.petcare_api.utils;
 
 import com.petcare.petcare_api.application.dto.workingPeriod.WorkingPeriodRequestDTO;
 import com.petcare.petcare_api.coredomain.model.WorkingPeriod;
+import com.petcare.petcare_api.infrastructure.repository.WorkingPeriodRepository;
+import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
+@Component
 public class WorkingPeriodTestFactory {
+
+    private final WorkingPeriodRepository workingPeriodRepository;
+
+    public WorkingPeriodTestFactory(WorkingPeriodRepository workingPeriodRepository) {
+        this.workingPeriodRepository = workingPeriodRepository;
+    }
 
     public static WorkingPeriodRequestDTO buildRequest() {
         return new WorkingPeriodRequestDTO(
@@ -17,11 +26,23 @@ public class WorkingPeriodTestFactory {
     }
 
     public static WorkingPeriod buildEntity() {
-        WorkingPeriod entity = new WorkingPeriod();
-        entity.setId("1");
-        entity.setDayOfWeek(DayOfWeek.MONDAY);
-        entity.setStartTime(LocalTime.of(9, 0));
-        entity.setEndTime(LocalTime.of(17, 0));
-        return entity;
+        return buildEntityWithDay(DayOfWeek.MONDAY);
+    }
+
+    public static WorkingPeriod buildEntityWithDay(DayOfWeek dayOfWeek) {
+        return WorkingPeriod.builder()
+                .dayOfWeek(dayOfWeek)
+                .startTime(LocalTime.of(9, 0))
+                .endTime(LocalTime.of(17, 0))
+                .build();
+    }
+
+    public WorkingPeriod persistWorkingPeriod(DayOfWeek dayOfWeek) {
+        WorkingPeriod entity = WorkingPeriod.builder()
+                .dayOfWeek(dayOfWeek)
+                .startTime(LocalTime.of(9, 0))
+                .endTime(LocalTime.of(17, 0))
+                .build();
+        return workingPeriodRepository.save(entity);
     }
 }

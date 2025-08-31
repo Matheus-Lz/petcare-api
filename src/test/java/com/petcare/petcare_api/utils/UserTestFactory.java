@@ -3,8 +3,20 @@ package com.petcare.petcare_api.utils;
 import com.petcare.petcare_api.application.dto.user.*;
 import com.petcare.petcare_api.coredomain.model.user.User;
 import com.petcare.petcare_api.coredomain.model.user.enums.UserRole;
+import com.petcare.petcare_api.infrastructure.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserTestFactory {
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public UserTestFactory(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     private static final String DEFAULT_EMAIL = "test@example.com";
     private static final String DEFAULT_PASSWORD = "123456";
@@ -43,28 +55,35 @@ public class UserTestFactory {
     }
 
     public static User buildUser() {
-        return User.builder()
-                .email(DEFAULT_EMAIL)
-                .password("encodedpassword")
-                .cpfCnpj(DEFAULT_CPFCNPJ)
-                .name(DEFAULT_NAME)
-                .role(UserRole.USER)
-                .build();
+        return buildUser(UserRole.USER);
     }
 
     public static User buildUser(UserRole role) {
         return User.builder()
                 .email(DEFAULT_EMAIL)
-                .password("encodedpassword")
+                .password(DEFAULT_PASSWORD)
                 .cpfCnpj(DEFAULT_CPFCNPJ)
                 .name(DEFAULT_NAME)
                 .role(role)
                 .build();
     }
 
-    public static User buildUserWithId(String id, UserRole role) {
-        User user = buildUser(role);
-        user.setId(id);
-        return user;
+    public User persistUser() {
+        return persistUser(UserRole.USER, DEFAULT_EMAIL, DEFAULT_CPFCNPJ);
+    }
+
+    public User persistUser(UserRole role) {
+        return persistUser(role, DEFAULT_EMAIL, DEFAULT_CPFCNPJ);
+    }
+
+    public User persistUser(UserRole role, String email, String cpfCnpj) {
+        User user = User.builder()
+                .email(email)
+                .password(passwordEncoder.encode(DEFAULT_PASSWORD))
+                .cpfCnpj(cpfCnpj)
+                .name(DEFAULT_NAME)
+                .role(role)
+                .build();
+        return userRepository.save(user);
     }
 }

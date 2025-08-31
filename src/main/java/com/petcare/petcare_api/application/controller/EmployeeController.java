@@ -30,7 +30,7 @@ public class EmployeeController {
 
     @Operation(summary = "Cria um novo funcionário", description = "Cria um novo funcionário junto com o usuário vinculado")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Funcionário criado com sucesso"), // Corrigir aqui também para 201
+            @ApiResponse(responseCode = "201", description = "Funcionário criado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos")
     })
     @PostMapping

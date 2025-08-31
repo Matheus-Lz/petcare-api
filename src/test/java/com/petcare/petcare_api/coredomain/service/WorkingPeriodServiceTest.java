@@ -3,6 +3,7 @@ package com.petcare.petcare_api.coredomain.service;
 import com.petcare.petcare_api.application.dto.workingPeriod.WorkingPeriodRequestDTO;
 import com.petcare.petcare_api.coredomain.model.WorkingPeriod;
 import com.petcare.petcare_api.infrastructure.repository.WorkingPeriodRepository;
+import com.petcare.petcare_api.utils.WorkingPeriodTestFactory;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,9 @@ class WorkingPeriodServiceTest {
     @Autowired
     private WorkingPeriodRepository repository;
 
+    @Autowired
+    private WorkingPeriodTestFactory workingPeriodTestFactory;
+
     @Test
     void shouldCreateWorkingPeriodSuccessfully() {
         WorkingPeriodRequestDTO dto = new WorkingPeriodRequestDTO(DayOfWeek.MONDAY,
@@ -40,12 +44,10 @@ class WorkingPeriodServiceTest {
 
     @Test
     void shouldThrowExceptionWhenTimeOverlaps() {
-        service.create(new WorkingPeriodRequestDTO(DayOfWeek.MONDAY,
-                LocalTime.of(9, 0), LocalTime.of(12, 0)));
+        workingPeriodTestFactory.persistWorkingPeriod(DayOfWeek.MONDAY);
 
         WorkingPeriodRequestDTO overlappingDto = new WorkingPeriodRequestDTO(DayOfWeek.MONDAY,
                 LocalTime.of(11, 0), LocalTime.of(13, 0));
-
         assertThrows(IllegalArgumentException.class, () -> service.create(overlappingDto));
     }
 
