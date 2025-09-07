@@ -32,7 +32,9 @@ public class CpfCnpjUtils {
     }
 
     private static boolean validateCpf(String cpf) {
-        int sum = 0, remainder;
+        int sum = 0;
+        int remainder;
+
         for (int i = 0; i < 9; i++) {
             sum += (cpf.charAt(i) - '0') * (10 - i);
         }

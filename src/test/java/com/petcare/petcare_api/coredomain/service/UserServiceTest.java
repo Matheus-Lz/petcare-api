@@ -32,7 +32,7 @@ class UserServiceTest {
     @Mock
     private TokenService tokenService;
 
-    @Mock(lenient = true)
+    @Mock()
     private BCryptPasswordEncoder passwordEncoder;
 
     @Mock

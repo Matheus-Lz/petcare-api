@@ -73,7 +73,7 @@ public class PetServiceController {
     public ResponseEntity<Page<PetServiceResponseDTO>> list(
             @RequestParam(defaultValue = "0") @Parameter(description = "Número da página de resultados") Integer page,
             @RequestParam(defaultValue = "10") @Parameter(description = "Número de itens por página") Integer size) {
-        Page<PetServiceResponseDTO> petServices = service.list(page, size).map(PetServiceResponseDTO::new);;
+        Page<PetServiceResponseDTO> petServices = service.list(page, size).map(PetServiceResponseDTO::new);
         return ResponseEntity.ok(petServices);
     }
 
