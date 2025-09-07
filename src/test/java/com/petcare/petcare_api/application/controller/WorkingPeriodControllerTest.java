@@ -3,7 +3,7 @@ package com.petcare.petcare_api.application.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.petcare.petcare_api.application.dto.workingPeriod.WorkingPeriodRequestDTO;
+import com.petcare.petcare_api.application.dto.workingperiod.WorkingPeriodRequestDTO;
 import com.petcare.petcare_api.coredomain.model.WorkingPeriod;
 import com.petcare.petcare_api.coredomain.service.WorkingPeriodService;
 import com.petcare.petcare_api.utils.WorkingPeriodTestFactory;

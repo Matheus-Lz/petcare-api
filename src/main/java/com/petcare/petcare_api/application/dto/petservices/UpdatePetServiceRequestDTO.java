@@ -1,10 +1,10 @@
-package com.petcare.petcare_api.application.dto.petServices;
+package com.petcare.petcare_api.application.dto.petservices;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
-public record CreatePetServiceRequestDTO(
+public record UpdatePetServiceRequestDTO(
 
         @NotEmpty(message = "O nome do serviço é obrigatório")
         String name,

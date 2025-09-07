@@ -85,7 +85,7 @@ class UserControllerTest {
 
         when(userService.getCurrentUser()).thenReturn(user);
 
-        mockMvc.perform(get("/user/123"))
+        mockMvc.perform(get("/user/current-user"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value(userResponse.getEmail()))
                 .andExpect(jsonPath("$.cpfCnpj").value(userResponse.getCpfCnpj()))

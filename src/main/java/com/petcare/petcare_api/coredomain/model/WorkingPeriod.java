@@ -1,7 +1,7 @@
 package com.petcare.petcare_api.coredomain.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.petcare.petcare_api.infrastructure.baseEntities.BaseModel;
+import com.petcare.petcare_api.infrastructure.baseentities.BaseModel;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Where;

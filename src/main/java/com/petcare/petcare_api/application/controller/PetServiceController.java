@@ -1,8 +1,8 @@
 package com.petcare.petcare_api.application.controller;
 
-import com.petcare.petcare_api.application.dto.petServices.CreatePetServiceRequestDTO;
-import com.petcare.petcare_api.application.dto.petServices.PetServiceResponseDTO;
-import com.petcare.petcare_api.application.dto.petServices.UpdatePetServiceRequestDTO;
+import com.petcare.petcare_api.application.dto.petservices.CreatePetServiceRequestDTO;
+import com.petcare.petcare_api.application.dto.petservices.PetServiceResponseDTO;
+import com.petcare.petcare_api.application.dto.petservices.UpdatePetServiceRequestDTO;
 import com.petcare.petcare_api.coredomain.service.PetServiceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

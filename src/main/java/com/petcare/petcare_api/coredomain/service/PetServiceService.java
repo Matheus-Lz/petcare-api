@@ -1,7 +1,7 @@
 package com.petcare.petcare_api.coredomain.service;
 
-import com.petcare.petcare_api.application.dto.petServices.CreatePetServiceRequestDTO;
-import com.petcare.petcare_api.application.dto.petServices.UpdatePetServiceRequestDTO;
+import com.petcare.petcare_api.application.dto.petservices.CreatePetServiceRequestDTO;
+import com.petcare.petcare_api.application.dto.petservices.UpdatePetServiceRequestDTO;
 import com.petcare.petcare_api.coredomain.model.PetService;
 import com.petcare.petcare_api.infrastructure.repository.PetServiceRepository;
 import org.springframework.beans.factory.annotation.Autowired;

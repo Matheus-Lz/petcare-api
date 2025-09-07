@@ -1,4 +1,4 @@
-package com.petcare.petcare_api.application.dto.petServices;
+package com.petcare.petcare_api.application.dto.petservices;
 
 import com.petcare.petcare_api.coredomain.model.PetService;
 

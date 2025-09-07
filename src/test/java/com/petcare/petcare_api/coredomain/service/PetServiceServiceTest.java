@@ -1,10 +1,7 @@
 package com.petcare.petcare_api.coredomain.service;
 
-import com.petcare.petcare_api.application.dto.employee.CreateEmployeeRequestDTO;
-import com.petcare.petcare_api.application.dto.petServices.CreatePetServiceRequestDTO;
-import com.petcare.petcare_api.application.dto.petServices.UpdatePetServiceRequestDTO;
-import com.petcare.petcare_api.application.dto.user.RegisterRequestDTO;
-import com.petcare.petcare_api.coredomain.model.Employee;
+import com.petcare.petcare_api.application.dto.petservices.CreatePetServiceRequestDTO;
+import com.petcare.petcare_api.application.dto.petservices.UpdatePetServiceRequestDTO;
 import com.petcare.petcare_api.coredomain.model.PetService;
 import com.petcare.petcare_api.infrastructure.repository.PetServiceRepository;
 import jakarta.transaction.Transactional;
@@ -13,9 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-
-import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -1,4 +1,4 @@
-package com.petcare.petcare_api.application.dto.workingPeriod;
+package com.petcare.petcare_api.application.dto.workingperiod;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 

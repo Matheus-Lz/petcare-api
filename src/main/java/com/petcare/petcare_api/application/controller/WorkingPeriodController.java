@@ -1,7 +1,7 @@
 package com.petcare.petcare_api.application.controller;
 
-import com.petcare.petcare_api.application.dto.workingPeriod.WorkingPeriodRequestDTO;
-import com.petcare.petcare_api.application.dto.workingPeriod.WorkingPeriodResponseDTO;
+import com.petcare.petcare_api.application.dto.workingperiod.WorkingPeriodRequestDTO;
+import com.petcare.petcare_api.application.dto.workingperiod.WorkingPeriodResponseDTO;
 import com.petcare.petcare_api.coredomain.model.WorkingPeriod;
 import com.petcare.petcare_api.coredomain.service.WorkingPeriodService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/working-periods")

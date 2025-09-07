@@ -1,8 +1,8 @@
 package com.petcare.petcare_api.application.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.petcare.petcare_api.application.dto.petServices.CreatePetServiceRequestDTO;
-import com.petcare.petcare_api.application.dto.petServices.UpdatePetServiceRequestDTO;
+import com.petcare.petcare_api.application.dto.petservices.CreatePetServiceRequestDTO;
+import com.petcare.petcare_api.application.dto.petservices.UpdatePetServiceRequestDTO;
 import com.petcare.petcare_api.coredomain.model.PetService;
 import com.petcare.petcare_api.coredomain.service.PetServiceService;
 import com.petcare.petcare_api.utils.PetServiceTestFactory;

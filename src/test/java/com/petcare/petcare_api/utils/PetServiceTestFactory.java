@@ -1,6 +1,6 @@
 package com.petcare.petcare_api.utils;
 
-import com.petcare.petcare_api.application.dto.petServices.CreatePetServiceRequestDTO;
+import com.petcare.petcare_api.application.dto.petservices.CreatePetServiceRequestDTO;
 import com.petcare.petcare_api.coredomain.model.PetService;
 import com.petcare.petcare_api.infrastructure.repository.PetServiceRepository;
 import org.springframework.stereotype.Component;

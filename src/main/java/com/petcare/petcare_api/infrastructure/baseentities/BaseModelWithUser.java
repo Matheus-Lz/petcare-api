@@ -1,4 +1,4 @@
-package com.petcare.petcare_api.infrastructure.baseEntities;
+package com.petcare.petcare_api.infrastructure.baseentities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.petcare.petcare_api.coredomain.model.user.User;

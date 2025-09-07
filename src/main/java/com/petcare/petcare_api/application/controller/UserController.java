@@ -33,8 +33,8 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> getUserById() {
+    @GetMapping("/current-user")
+    public ResponseEntity<UserResponseDTO> getCurrentUser() {
         return ResponseEntity.ok(new UserResponseDTO(service.getCurrentUser()));
     }
 

@@ -1,4 +1,4 @@
-package com.petcare.petcare_api.infrastructure.baseEntities;
+package com.petcare.petcare_api.infrastructure.baseentities;
 
 import jakarta.persistence.*;
 import lombok.Getter;

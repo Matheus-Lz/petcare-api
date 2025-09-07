@@ -1,6 +1,6 @@
 package com.petcare.petcare_api.coredomain.service;
 
-import com.petcare.petcare_api.application.dto.workingPeriod.WorkingPeriodRequestDTO;
+import com.petcare.petcare_api.application.dto.workingperiod.WorkingPeriodRequestDTO;
 import com.petcare.petcare_api.coredomain.model.WorkingPeriod;
 import com.petcare.petcare_api.infrastructure.repository.WorkingPeriodRepository;
 import jakarta.persistence.EntityNotFoundException;

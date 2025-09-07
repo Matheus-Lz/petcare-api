@@ -1,8 +1,9 @@
 package com.petcare.petcare_api.coredomain.model.user;
 
 import com.petcare.petcare_api.coredomain.model.user.enums.UserRole;
-import com.petcare.petcare_api.infrastructure.baseEntities.BaseModel;
+import com.petcare.petcare_api.infrastructure.baseentities.BaseModel;
 import com.petcare.petcare_api.infrastructure.converter.UserRoleConverter;
+import com.petcare.petcare_api.infrastructure.exception.UserExceptions;
 import com.petcare.petcare_api.infrastructure.utils.CpfCnpjUtils;
 import jakarta.persistence.*;
 import lombok.*;
@@ -68,7 +69,7 @@ public class User extends BaseModel implements UserDetails {
         if (this.role == UserRole.EMPLOYEE) return List.of(new SimpleGrantedAuthority("ROLE_EMPLOYEE"));
         if (this.role == UserRole.SUPER_ADMIN) return List.of(new SimpleGrantedAuthority("ROLE_SUPER_ADMIN"));
 
-        throw new RuntimeException("User.getAuthorities -> Erro ao consultar permissões do usuário " + this.getId());
+        throw new UserExceptions.UserAuthoritiesFetchException(this.getId());
     }
 
     @Override
