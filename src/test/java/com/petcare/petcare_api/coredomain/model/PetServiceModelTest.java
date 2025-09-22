@@ -1,6 +1,7 @@
 package com.petcare.petcare_api.coredomain.model;
 
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class PetServiceModelTest {
@@ -16,7 +17,6 @@ class PetServiceModelTest {
     @Test
     void shouldThrowWhenNameIsEmpty() {
         PetService service = createValidServiceBuilder().name("").build();
-
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, service::validate);
         assertEquals("O nome do serviço não pode ser vazio", ex.getMessage());
     }
@@ -24,7 +24,6 @@ class PetServiceModelTest {
     @Test
     void shouldThrowWhenDescriptionIsEmpty() {
         PetService service = createValidServiceBuilder().description("").build();
-
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, service::validate);
         assertEquals("A descrição do serviço não pode ser vazia", ex.getMessage());
     }
@@ -33,10 +32,8 @@ class PetServiceModelTest {
     void shouldThrowWhenPriceIsZeroOrLess() {
         PetService serviceWithZeroPrice = createValidServiceBuilder().price(0.0).build();
         PetService serviceWithNegativePrice = createValidServiceBuilder().price(-10.0).build();
-
         IllegalArgumentException ex1 = assertThrows(IllegalArgumentException.class, serviceWithZeroPrice::validate);
         IllegalArgumentException ex2 = assertThrows(IllegalArgumentException.class, serviceWithNegativePrice::validate);
-
         assertEquals("O preço do serviço deve ser maior que zero", ex1.getMessage());
         assertEquals("O preço do serviço deve ser maior que zero", ex2.getMessage());
     }
@@ -45,10 +42,8 @@ class PetServiceModelTest {
     void shouldThrowWhenTimeIsZeroOrLess() {
         PetService serviceWithZeroTime = createValidServiceBuilder().time(0).build();
         PetService serviceWithNegativeTime = createValidServiceBuilder().time(-30).build();
-
         IllegalArgumentException ex1 = assertThrows(IllegalArgumentException.class, serviceWithZeroTime::validate);
         IllegalArgumentException ex2 = assertThrows(IllegalArgumentException.class, serviceWithNegativeTime::validate);
-
         assertEquals("O tempo do serviço deve ser maior que zero", ex1.getMessage());
         assertEquals("O tempo do serviço deve ser maior que zero", ex2.getMessage());
     }
@@ -56,7 +51,28 @@ class PetServiceModelTest {
     @Test
     void shouldValidateSuccessfully() {
         PetService validService = createValidServiceBuilder().build();
-
         assertDoesNotThrow(validService::validate);
+    }
+
+    @Test
+    void shouldRejectBlankNameAndDescription() {
+        PetService s1 = createValidServiceBuilder().name("   ").build();
+        PetService s2 = createValidServiceBuilder().description("   ").build();
+        assertThrows(IllegalArgumentException.class, s1::validate);
+        assertThrows(IllegalArgumentException.class, s2::validate);
+    }
+
+    @Test
+    void shouldRejectNullPriceAndTime() {
+        PetService s1 = createValidServiceBuilder().price(null).build();
+        PetService s2 = createValidServiceBuilder().time(null).build();
+        assertThrows(IllegalArgumentException.class, s1::validate);
+        assertThrows(IllegalArgumentException.class, s2::validate);
+    }
+
+    @Test
+    void shouldValidateWithMinimumPositiveValues() {
+        PetService s = createValidServiceBuilder().price(0.01).time(1).build();
+        assertDoesNotThrow(s::validate);
     }
 }

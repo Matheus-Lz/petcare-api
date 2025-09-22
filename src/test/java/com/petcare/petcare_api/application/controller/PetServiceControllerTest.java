@@ -20,8 +20,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Collections;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -55,8 +54,19 @@ class PetServiceControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"))
+                .andExpect(header().string("Location", org.hamcrest.Matchers.containsString("/pet-services/")))
                 .andExpect(jsonPath("$.id").value(createdEntity.getId()))
                 .andExpect(jsonPath("$.name").value(createdEntity.getName()));
+    }
+
+    @Test
+    void shouldRejectCreateWithInvalidPayload() throws Exception {
+        CreatePetServiceRequestDTO invalid = new CreatePetServiceRequestDTO("", "", null, null);
+
+        mockMvc.perform(post("/pet-services")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalid)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -98,6 +108,17 @@ class PetServiceControllerTest {
                         .param("size", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.content[0].id").value(entity.getId()));
+    }
+
+    @Test
+    void shouldListPetServicesWithDefaultPaging() throws Exception {
+        PetService entity = PetServiceTestFactory.buildEntity();
+        PageImpl<PetService> page = new PageImpl<>(Collections.singletonList(entity), PageRequest.of(0, 10), 1);
+        when(petServiceService.list(anyInt(), anyInt())).thenReturn(page);
+
+        mockMvc.perform(get("/pet-services"))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").value(entity.getId()));
     }
 

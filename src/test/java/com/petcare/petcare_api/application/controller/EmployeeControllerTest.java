@@ -22,8 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -57,7 +56,28 @@ class EmployeeControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"))
+                .andExpect(header().string("Location", org.hamcrest.Matchers.containsString("/employees/")))
                 .andExpect(jsonPath("$.id").value(createdEntity.getId()));
+    }
+
+    @Test
+    void shouldRejectCreateEmployeeWithNullUser() throws Exception {
+        CreateEmployeeRequestDTO request = new CreateEmployeeRequestDTO(null, List.of(UUID.randomUUID().toString()));
+
+        mockMvc.perform(post("/employees")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldRejectCreateEmployeeWithNullServiceIds() throws Exception {
+        CreateEmployeeRequestDTO request = new CreateEmployeeRequestDTO(EmployeeTestFactory.buildCreateRequestDTO().user(), null);
+
+        mockMvc.perform(post("/employees")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -85,8 +105,6 @@ class EmployeeControllerTest {
                 .andExpect(jsonPath("$.id").value(entity.getId()));
     }
 
-
-
     @Test
     void shouldListEmployees() throws Exception {
         Employee entity = EmployeeTestFactory.buildEmployee();
@@ -98,6 +116,17 @@ class EmployeeControllerTest {
                         .param("size", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.content[0].id").value(entity.getId()));
+    }
+
+    @Test
+    void shouldListEmployeesWithDefaultPaging() throws Exception {
+        Employee entity = EmployeeTestFactory.buildEmployee();
+        PageImpl<Employee> page = new PageImpl<>(Collections.singletonList(entity), PageRequest.of(0, 10), 1);
+        when(employeeService.list(anyInt(), anyInt())).thenReturn(page);
+
+        mockMvc.perform(get("/employees"))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").value(entity.getId()));
     }
 

@@ -3,7 +3,8 @@ package com.petcare.petcare_api.application.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.petcare.petcare_api.application.dto.scheduling.*;
+import com.petcare.petcare_api.application.dto.scheduling.SchedulingRequestDTO;
+import com.petcare.petcare_api.application.dto.scheduling.UpdateSchedulingStatusRequestDTO;
 import com.petcare.petcare_api.coredomain.model.scheduling.Scheduling;
 import com.petcare.petcare_api.coredomain.model.scheduling.enums.SchedulingStatus;
 import com.petcare.petcare_api.coredomain.service.SchedulingService;
@@ -14,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -23,7 +26,7 @@ import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -59,6 +62,8 @@ class SchedulingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDTO)))
                 .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
+                .andExpect(header().string("Location", org.hamcrest.Matchers.containsString("/schedulings/")))
                 .andExpect(jsonPath("$.id").value(scheduling.getId()));
     }
 
@@ -85,7 +90,8 @@ class SchedulingControllerTest {
         when(schedulingService.findById(schedulingId)).thenReturn(scheduling);
 
         mockMvc.perform(get("/schedulings/{id}", schedulingId))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(scheduling.getId()));
     }
 
     @Test
@@ -114,6 +120,25 @@ class SchedulingControllerTest {
     }
 
     @Test
+    void shouldReturnBadRequestWhenDateParamIsInvalid() throws Exception {
+        String petServiceId = "1";
+
+        mockMvc.perform(get("/schedulings/available-times")
+                        .param("petServiceId", petServiceId)
+                        .param("date", "2025-13-99"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenMissingRequiredParam() throws Exception {
+        LocalDate date = LocalDate.of(2025, 8, 3);
+
+        mockMvc.perform(get("/schedulings/available-times")
+                        .param("date", date.toString()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void shouldGetAvailableDays() throws Exception {
         String petServiceId = "1";
         LocalDate monthStart = LocalDate.of(2025, 8, 1);
@@ -128,14 +153,27 @@ class SchedulingControllerTest {
     }
 
     @Test
-    void shouldFindSchedulingsByDate() throws Exception {
-        LocalDate date = LocalDate.of(2025, 8, 3);
-        List<Scheduling> schedulings = Collections.singletonList(SchedulingTestFactory.buildEntity());
-        when(schedulingService.findByDate(date)).thenReturn(schedulings);
+    void shouldFindUserSchedulings() throws Exception {
+        Scheduling s = SchedulingTestFactory.buildEntity();
+        PageImpl<Scheduling> page = new PageImpl<>(Collections.singletonList(s), PageRequest.of(0, 10), 1);
+        when(schedulingService.findByCurrentUser(anyInt(), anyInt())).thenReturn(page);
 
-        mockMvc.perform(get("/schedulings/by-date")
-                        .param("date", date.toString()))
-                .andExpect(status().isOk());
+        mockMvc.perform(get("/schedulings/user")
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").value(1));
+    }
+
+    @Test
+    void shouldFindUserSchedulingsWithDefaultPaging() throws Exception {
+        Scheduling s = SchedulingTestFactory.buildEntity();
+        PageImpl<Scheduling> page = new PageImpl<>(Collections.singletonList(s), PageRequest.of(0, 10), 1);
+        when(schedulingService.findByCurrentUser(anyInt(), anyInt())).thenReturn(page);
+
+        mockMvc.perform(get("/schedulings/user"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").value(1));
     }
 
     @Test

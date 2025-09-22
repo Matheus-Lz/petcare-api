@@ -130,6 +130,8 @@ public class UserService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(newPassword));
         user.setResetToken(null);
         user.setResetTokenExpiration(null);
+
+        user.validate();
         repository.save(user);
     }
 

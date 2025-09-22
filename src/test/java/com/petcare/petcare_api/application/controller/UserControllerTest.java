@@ -52,6 +52,16 @@ class UserControllerTest {
     }
 
     @Test
+    void shouldRejectRegisterWithInvalidPayload() throws Exception {
+        RegisterRequestDTO invalid = new RegisterRequestDTO("invalid", "123", "", "");
+
+        mockMvc.perform(post("/user/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalid)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void shouldUpdateUser() throws Exception {
         UpdateUserRequestDTO updateRequest = UserTestFactory.buildUpdateRequest();
 
@@ -76,6 +86,16 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.role").value("role"))
                 .andExpect(jsonPath("$.name").value("name"))
                 .andExpect(jsonPath("$.userId").value("userId"));
+    }
+
+    @Test
+    void shouldRejectLoginWithInvalidPayload() throws Exception {
+        AuthenticationRequestDTO invalid = new AuthenticationRequestDTO("not-an-email", null);
+
+        mockMvc.perform(post("/user/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalid)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

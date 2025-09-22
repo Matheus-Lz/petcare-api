@@ -209,6 +209,9 @@ class UserServiceTest {
     @Test
     void shouldResetPassword() {
         User user = new User();
+        user.setEmail("1@gmail.com");
+        user.setCpfCnpj("23602088000117");
+        user.setResetToken("t");
         user.setResetToken("t");
         user.setResetTokenExpiration(LocalDateTime.now().plusMinutes(5));
         when(userRepository.findByResetToken("t")).thenReturn(Optional.of(user));
