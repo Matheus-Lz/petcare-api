@@ -13,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -58,7 +57,7 @@ public class UserService implements UserDetailsService {
 
         User newUser = User.builder()
                 .email(requestDTO.email())
-                .password(new BCryptPasswordEncoder().encode(requestDTO.password()))
+                .password(passwordEncoder.encode(requestDTO.password()))
                 .name(requestDTO.name())
                 .cpfCnpj(requestDTO.cpfCnpj())
                 .role(role)
@@ -102,13 +101,11 @@ public class UserService implements UserDetailsService {
         repository.save(user);
     }
 
-
     public User getById(String userId) {
         Optional<User> optionalUser = repository.findById(userId);
         if (optionalUser.isEmpty()) {
             throw new IllegalArgumentException("Usuário não encontrado");
         }
-
         return optionalUser.get();
     }
 
@@ -136,7 +133,6 @@ public class UserService implements UserDetailsService {
         repository.save(user);
     }
 
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserDetails user = repository.findByEmail(username);
@@ -148,8 +144,9 @@ public class UserService implements UserDetailsService {
 
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() == "anonymousUser") return null;
-
-        return (User) authentication.getPrincipal();
+        if (authentication == null || !authentication.isAuthenticated()) return null;
+        Object principal = authentication.getPrincipal();
+        if ("anonymousUser".equals(principal)) return null;
+        return (User) principal;
     }
 }

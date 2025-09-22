@@ -42,18 +42,4 @@ public class SchedulingTestFactory {
                 .status(SchedulingStatus.WAITING_FOR_ARRIVAL)
                 .build();
     }
-
-    public Scheduling persistScheduling(String email, String cpfCnpj) {
-        User user = userTestFactory.persistUser(UserRole.USER, email, cpfCnpj);
-        PetService petService = petServiceTestFactory.persistPetService();
-
-        Scheduling scheduling = Scheduling.builder()
-                .user(user)
-                .petService(petService)
-                .schedulingHour(LocalDateTime.of(2025, 9, 15, 14, 30))
-                .status(SchedulingStatus.WAITING_FOR_ARRIVAL)
-                .build();
-
-        return schedulingRepository.save(scheduling);
-    }
 }

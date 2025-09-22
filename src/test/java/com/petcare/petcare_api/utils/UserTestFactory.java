@@ -68,14 +68,6 @@ public class UserTestFactory {
                 .build();
     }
 
-    public User persistUser() {
-        return persistUser(UserRole.USER, DEFAULT_EMAIL, DEFAULT_CPFCNPJ);
-    }
-
-    public User persistUser(UserRole role) {
-        return persistUser(role, DEFAULT_EMAIL, DEFAULT_CPFCNPJ);
-    }
-
     public User persistUser(UserRole role, String email, String cpfCnpj) {
         User user = User.builder()
                 .email(email)
