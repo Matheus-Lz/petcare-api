@@ -202,4 +202,38 @@ class SchedulingControllerTest {
 
         verify(schedulingService, times(1)).updateStatus(schedulingId, SchedulingStatus.COMPLETED);
     }
+
+    @Test
+    void shouldGetSchedulingsByDate() throws Exception {
+        LocalDate date = LocalDate.of(2025, 8, 4);
+        var s1 = SchedulingTestFactory.buildEntity();
+        var s2 = SchedulingTestFactory.buildEntity();
+
+        when(schedulingService.findByDate(date)).thenReturn(List.of(s1, s2));
+
+        mockMvc.perform(get("/schedulings/by-date")
+                        .param("date", date.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(s1.getId()))
+                .andExpect(jsonPath("$[1].id").value(s2.getId()));
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenNoSchedulingsByDate() throws Exception {
+        LocalDate date = LocalDate.of(2025, 8, 4);
+        when(schedulingService.findByDate(date)).thenReturn(List.of());
+
+        mockMvc.perform(get("/schedulings/by-date")
+                        .param("date", date.toString()))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenDateIsInvalidOnByDate() throws Exception {
+        mockMvc.perform(get("/schedulings/by-date")
+                        .param("date", "2025-13-40"))
+                .andExpect(status().isBadRequest());
+    }
 }

@@ -11,6 +11,7 @@ import com.petcare.petcare_api.utils.UserTestFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -254,4 +255,66 @@ class UserServiceTest {
         when(ctx.getAuthentication()).thenReturn(auth);
         SecurityContextHolder.setContext(ctx);
     }
+
+    @Test
+    void shouldReturnNullWhenNoAuthentication() {
+        SecurityContext ctx = mock(SecurityContext.class);
+        when(ctx.getAuthentication()).thenReturn(null);
+        SecurityContextHolder.setContext(ctx);
+
+        assertNull(userService.getCurrentUser());
+    }
+
+    @Test
+    void shouldReturnNullWhenAnonymousUser() {
+        Authentication auth =
+                new UsernamePasswordAuthenticationToken("anonymousUser", null, java.util.Collections.emptyList());
+        SecurityContext ctx = mock(SecurityContext.class);
+        when(ctx.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(ctx);
+
+        assertNull(userService.getCurrentUser());
+    }
+
+    @Test
+    void shouldThrowWhenEmailNotFoundOnSendResetToken() {
+        when(userRepository.findUserByEmail("naoexiste@x.com")).thenReturn(null);
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> userService.sendResetToken("naoexiste@x.com"));
+        assertEquals("Email não encontrado", ex.getMessage());
+    }
+
+    @Test
+    void shouldIgnoreBlankFieldsOnUpdate() {
+        User user = User.builder()
+                .email("old@mail.com").name("Old").cpfCnpj("111")
+                .password("hash").role(UserRole.USER).build();
+        user.setId("u1");
+        mockAuthenticated(user);
+        when(userRepository.findById("u1")).thenReturn(Optional.of(user));
+
+        UpdateUserRequestDTO dto = new UpdateUserRequestDTO("  ", "  ", null, "", "  ");
+        userService.updateUser("u1", dto);
+
+        assertEquals("old@mail.com", user.getEmail());
+        assertEquals("Old", user.getName());
+        assertEquals("111", user.getCpfCnpj());
+        assertEquals("hash", user.getPassword());
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void shouldRegisterUserWithDefaultRoleUSER() {
+        when(userRepository.findByEmail(registerDTO.email())).thenReturn(null);
+        when(passwordEncoder.encode(registerDTO.password())).thenReturn("hashedPwd");
+        when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        userService.registerUser(registerDTO);
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertEquals(UserRole.USER, captor.getValue().getRole());
+        assertEquals("hashedPwd", captor.getValue().getPassword());
+    }
+
 }

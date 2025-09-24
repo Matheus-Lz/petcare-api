@@ -8,6 +8,7 @@ import com.petcare.petcare_api.coredomain.model.scheduling.enums.SchedulingStatu
 import com.petcare.petcare_api.coredomain.model.user.User;
 import com.petcare.petcare_api.infrastructure.repository.SchedulingRepository;
 import com.petcare.petcare_api.infrastructure.repository.UserRepository;
+import com.petcare.petcare_api.infrastructure.repository.WorkingPeriodRepository;
 import com.petcare.petcare_api.utils.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -54,6 +55,8 @@ class SchedulingServiceTest {
     private SchedulingRepository schedulingRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private WorkingPeriodRepository workingPeriodRepository;
 
     @Autowired
     private PetServiceTestFactory petServiceTestFactory;
@@ -233,4 +236,81 @@ class SchedulingServiceTest {
         Scheduling scheduling = schedulingService.create(new SchedulingRequestDTO(petService.getId(), hour));
         assertThrows(IllegalArgumentException.class, () -> schedulingService.delegateToUser(scheduling.getId(), "emp-nao-existe"));
     }
+
+    @Test
+    @WithMockCustomUser(email = CLIENT_EMAIL, cpf = CLIENT_CPF)
+    void shouldAllowSchedulingExactlyOnPeriodEdges() {
+        LocalDate date = LocalDate.of(2025, 8, 4);
+
+        var period = workingPeriodRepository.findAllByDayOfWeek(DayOfWeek.MONDAY).get(0);
+        int duration = petService.getTime();
+        LocalTime firstStart = period.getStartTime();
+        LocalTime lastStart  = period.getEndTime().minusMinutes(duration);
+
+        Scheduling s1 = schedulingService.create(
+                new SchedulingRequestDTO(petService.getId(), date.atTime(firstStart)));
+        assertNotNull(s1.getId());
+
+        Scheduling s2 = schedulingService.create(
+                new SchedulingRequestDTO(petService.getId(), date.atTime(lastStart)));
+        assertNotNull(s2.getId());
+    }
+
+
+    @Test
+    @WithMockCustomUser(email = CLIENT_EMAIL, cpf = CLIENT_CPF)
+    void getAvailableDaysShouldIgnoreEntityNotFoundAndContinue() {
+        SchedulingService spy = Mockito.spy(schedulingService);
+
+        LocalDate monthStart = LocalDate.of(2025, 8, 1);
+        LocalDate monday1 = LocalDate.of(2025, 8, 4);
+        LocalDate monday2 = LocalDate.of(2025, 8, 11);
+
+        Mockito.doReturn(List.of(LocalTime.of(10, 0)))
+                .when(spy).getAvailableTimes(petService.getId(), monday2);
+        Mockito.doThrow(new EntityNotFoundException("sem período"))
+                .when(spy).getAvailableTimes(petService.getId(), monday1);
+
+        List<LocalDate> days = spy.getAvailableDays(petService.getId(), monthStart);
+
+        assertTrue(days.contains(monday2));
+        assertFalse(days.contains(monday1));
+    }
+
+    @Test
+    @WithMockCustomUser(email = CLIENT_EMAIL, cpf = CLIENT_CPF)
+    void getAvailableDaysShouldSkipDatesWhenUnexpectedErrorOccurs() {
+        SchedulingService spy = Mockito.spy(schedulingService);
+
+        LocalDate monthStart = LocalDate.of(2025, 8, 1);
+        LocalDate monday1 = LocalDate.of(2025, 8, 4);
+        LocalDate monday2 = LocalDate.of(2025, 8, 11);
+
+        Mockito.doThrow(new RuntimeException("boom"))
+                .when(spy).getAvailableTimes(petService.getId(), monday1);
+        Mockito.doReturn(List.of(LocalTime.of(9, 0)))
+                .when(spy).getAvailableTimes(petService.getId(), monday2);
+
+        List<LocalDate> days = spy.getAvailableDays(petService.getId(), monthStart);
+
+        assertTrue(days.contains(monday2));
+        assertFalse(days.contains(monday1));
+    }
+
+    @Test
+    @WithMockCustomUser(email = CLIENT_EMAIL, cpf = CLIENT_CPF)
+    void getAvailableTimesReturnsEmptyWhenAllSlotsConflict() {
+        LocalDate date = LocalDate.of(2025, 8, 4);
+        schedulingService.create(new SchedulingRequestDTO(petService.getId(), date.atTime(9, 0)));
+        schedulingService.create(new SchedulingRequestDTO(petService.getId(), date.atTime(9, 30)));
+        schedulingService.create(new SchedulingRequestDTO(petService.getId(), date.atTime(10, 0)));
+        schedulingService.create(new SchedulingRequestDTO(petService.getId(), date.atTime(10, 30)));
+
+        List<LocalTime> times = schedulingService.getAvailableTimes(petService.getId(), date);
+        assertFalse(times.contains(LocalTime.of(9, 0)));
+        assertFalse(times.contains(LocalTime.of(9, 30)));
+        assertFalse(times.contains(LocalTime.of(10, 0)));
+        assertFalse(times.contains(LocalTime.of(10, 30)));
+    }
+
 }
