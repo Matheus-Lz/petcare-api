@@ -1,10 +1,19 @@
-FROM maven:3.9.9-eclipse-temurin-21 AS build
-COPY pom.xml .
-RUN --mount=type=cache,target=/root/.m2 mvn -q -DskipTests dependency:go-offline
-COPY src src
-RUN --mount=type=cache,target=/root/.m2 mvn -q -DskipTests -DfinalName=app clean package
+FROM maven:3.9.4-eclipse-temurin-21 AS builder
 
-FROM eclipse-temurin:21-jre-jammy
-COPY --from=build /target/app.jar /app.jar
+WORKDIR /app
+
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+COPY src ./src
+
+RUN mvn clean package -DskipTests
+
+FROM amazoncorretto:21-alpine
+WORKDIR /app
+
+COPY --from=builder /app/target/petcare-api-0.0.1-SNAPSHOT.jar /app/app.jar
+
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","/app.jar"]
+
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
