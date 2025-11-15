@@ -41,6 +41,7 @@ public class SecurityConfigurations {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/schedulings/**").permitAll()
                         .requestMatchers(HttpMethod.GET, PET_SERVICES_PATH).permitAll()
                         .requestMatchers(HttpMethod.POST, PET_SERVICES_PATH).hasAnyRole(ROLE_SUPER_ADMIN, ROLE_EMPLOYEE)
@@ -50,6 +51,7 @@ public class SecurityConfigurations {
                         .requestMatchers("/working-periods/**").hasAnyRole(ROLE_SUPER_ADMIN, ROLE_EMPLOYEE)
                         .requestMatchers("/user/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/development/doc").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
