@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SchedulingService {
@@ -110,6 +111,10 @@ public class SchedulingService {
 
 
     public List<LocalTime> getAvailableTimes(String petServiceId, LocalDate date) {
+        if (date.isBefore(LocalDate.now())) {
+            return new ArrayList<>();
+        }
+
         PetService petService = petServiceService.getById(petServiceId);
 
         DayOfWeek dayOfWeek = date.getDayOfWeek();
@@ -141,8 +146,15 @@ public class SchedulingService {
                     availableTimes.add(cursor);
                 }
 
-                cursor = cursor.plusMinutes(30);
+                cursor = cursor.plusMinutes(duration);
             }
+        }
+
+        if (date.isEqual(LocalDate.now())) {
+            LocalTime now = LocalTime.now();
+            return availableTimes.stream()
+                    .filter(time -> time.isAfter(now))
+                    .collect(Collectors.toList());
         }
 
         return availableTimes;
@@ -153,8 +165,13 @@ public class SchedulingService {
 
         LocalDate monthEnd = monthStart.withDayOfMonth(monthStart.lengthOfMonth());
         List<LocalDate> availableDays = new ArrayList<>();
+        LocalDate today = LocalDate.now();
 
         for (LocalDate date = monthStart; !date.isAfter(monthEnd); date = date.plusDays(1)) {
+            if (date.isBefore(today)) {
+                continue;
+            }
+
             try {
                 List<LocalTime> times = getAvailableTimes(petServiceId, date);
                 if (!times.isEmpty()) {
@@ -208,4 +225,3 @@ public class SchedulingService {
         }
     }
 }
-

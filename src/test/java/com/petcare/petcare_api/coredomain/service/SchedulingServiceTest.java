@@ -130,14 +130,14 @@ class SchedulingServiceTest {
     @Test
     @WithMockCustomUser(email = CLIENT_EMAIL, cpf = CLIENT_CPF)
     void shouldGetAvailableTimesForGivenDate() {
-        LocalDateTime conflictHour = LocalDateTime.of(2025, 8, 4, 10, 30);
+        LocalDateTime conflictHour = LocalDateTime.of(2120, 8, 12, 10, 30);
         SchedulingRequestDTO conflictDto = new SchedulingRequestDTO(petService.getId(), conflictHour);
         schedulingService.create(conflictDto);
-        LocalDate date = LocalDate.of(2025, 8, 4);
+        LocalDate date = LocalDate.of(2120, 8, 12);
         List<LocalTime> availableTimes = schedulingService.getAvailableTimes(petService.getId(), date);
         assertFalse(availableTimes.contains(LocalTime.of(10, 30)));
         assertTrue(availableTimes.contains(LocalTime.of(9, 0)));
-        assertTrue(availableTimes.contains(LocalTime.of(11, 0)));
+        assertTrue(availableTimes.contains(LocalTime.of(11, 25)));
     }
 
     @Test
@@ -207,7 +207,7 @@ class SchedulingServiceTest {
     @Test
     @WithMockCustomUser(email = CLIENT_EMAIL, cpf = CLIENT_CPF)
     void getAvailableTimesShouldThrowIfNoWorkingPeriods() {
-        LocalDate sunday = LocalDate.of(2025, 8, 3);
+        LocalDate sunday = LocalDate.of(2120, 8, 17);
         var petServiceId = petService.getId();
 
         assertThrows(EntityNotFoundException.class,
@@ -217,7 +217,7 @@ class SchedulingServiceTest {
     @Test
     @WithMockCustomUser(email = CLIENT_EMAIL, cpf = CLIENT_CPF)
     void getAvailableDaysShouldContainMondaysOnlyWhenConfigured() {
-        LocalDate monthStart = LocalDate.of(2025, 8, 1);
+        LocalDate monthStart = LocalDate.of(2150, 8, 1);
         List<LocalDate> days = schedulingService.getAvailableDays(petService.getId(), monthStart);
         assertTrue(days.stream().allMatch(d -> d.getDayOfWeek() == DayOfWeek.MONDAY));
         assertTrue(days.stream().findAny().isPresent());
@@ -275,9 +275,9 @@ class SchedulingServiceTest {
     void getAvailableDaysShouldIgnoreEntityNotFoundAndContinue() {
         SchedulingService spy = Mockito.spy(schedulingService);
 
-        LocalDate monthStart = LocalDate.of(2025, 8, 1);
-        LocalDate monday1 = LocalDate.of(2025, 8, 4);
-        LocalDate monday2 = LocalDate.of(2025, 8, 11);
+        LocalDate monthStart = LocalDate.of(2150, 8, 1);
+        LocalDate monday1 = LocalDate.of(2150, 8, 4);
+        LocalDate monday2 = LocalDate.of(2150, 8, 11);
 
         Mockito.doReturn(List.of(LocalTime.of(10, 0)))
                 .when(spy).getAvailableTimes(petService.getId(), monday2);
@@ -295,9 +295,9 @@ class SchedulingServiceTest {
     void getAvailableDaysShouldSkipDatesWhenUnexpectedErrorOccurs() {
         SchedulingService spy = Mockito.spy(schedulingService);
 
-        LocalDate monthStart = LocalDate.of(2025, 8, 1);
-        LocalDate monday1 = LocalDate.of(2025, 8, 4);
-        LocalDate monday2 = LocalDate.of(2025, 8, 11);
+        LocalDate monthStart = LocalDate.of(2150, 8, 1);
+        LocalDate monday1 = LocalDate.of(2150, 8, 4);
+        LocalDate monday2 = LocalDate.of(2150, 8, 11);
 
         Mockito.doThrow(new RuntimeException("boom"))
                 .when(spy).getAvailableTimes(petService.getId(), monday1);
@@ -326,4 +326,36 @@ class SchedulingServiceTest {
         assertFalse(times.contains(LocalTime.of(10, 30)));
     }
 
+    @Test
+    @WithMockCustomUser(email = CLIENT_EMAIL, cpf = CLIENT_CPF)
+    void getAvailableTimes_shouldReturnEmptyListForPastDate() {
+        LocalDate pastDate = LocalDate.now().minusDays(1);
+        List<LocalTime> availableTimes = schedulingService.getAvailableTimes(petService.getId(), pastDate);
+        assertTrue(availableTimes.isEmpty());
+    }
+
+    @Test
+    @WithMockCustomUser(email = CLIENT_EMAIL, cpf = CLIENT_CPF)
+    void getAvailableTimes_shouldFilterPastTimesForCurrentDate() {
+        workingPeriodRepository.deleteAll();
+        workingPeriodTestFactory.persistWorkingPeriod(LocalDate.now().getDayOfWeek());
+
+        LocalDate today = LocalDate.now();
+        LocalTime now = LocalTime.now();
+        List<LocalTime> availableTimes = schedulingService.getAvailableTimes(petService.getId(), today);
+        assertTrue(availableTimes.stream().allMatch(time -> time.isAfter(now)));
+    }
+
+    @Test
+    @WithMockCustomUser(email = CLIENT_EMAIL, cpf = CLIENT_CPF)
+    void getAvailableDays_shouldNotIncludePastDays() {
+        workingPeriodRepository.deleteAll();
+        workingPeriodTestFactory.persistWorkingPeriod(LocalDate.now().getDayOfWeek());
+        workingPeriodTestFactory.persistWorkingPeriod(LocalDate.now().plusDays(1).getDayOfWeek());
+
+        LocalDate today = LocalDate.now();
+        LocalDate monthStart = today.withDayOfMonth(1);
+        List<LocalDate> availableDays = schedulingService.getAvailableDays(petService.getId(), monthStart);
+        assertTrue(availableDays.stream().allMatch(day -> !day.isBefore(today)));
+    }
 }

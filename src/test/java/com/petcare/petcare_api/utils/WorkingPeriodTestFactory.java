@@ -37,12 +37,12 @@ public class WorkingPeriodTestFactory {
                 .build();
     }
 
-    public WorkingPeriod persistWorkingPeriod(DayOfWeek dayOfWeek) {
+    public void persistWorkingPeriod(DayOfWeek dayOfWeek) {
         WorkingPeriod entity = WorkingPeriod.builder()
                 .dayOfWeek(dayOfWeek)
                 .startTime(LocalTime.of(9, 0))
                 .endTime(LocalTime.of(17, 0))
                 .build();
-        return workingPeriodRepository.save(entity);
+        workingPeriodRepository.save(entity);
     }
 }
