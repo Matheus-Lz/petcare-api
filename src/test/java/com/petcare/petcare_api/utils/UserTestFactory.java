@@ -23,7 +23,6 @@ public class UserTestFactory {
     private static final String DEFAULT_CPFCNPJ = "23602088000117";
     private static final String DEFAULT_NAME = "Test User";
 
-    private static final String UPDATED_EMAIL = "updated@example.com";
     private static final String UPDATED_PASSWORD = "654321";
     private static final String UPDATED_CPFCNPJ = "40846120000129";
     private static final String UPDATED_NAME = "Updated User";
@@ -39,7 +38,6 @@ public class UserTestFactory {
 
     public static UpdateUserRequestDTO buildUpdateRequest() {
         return new UpdateUserRequestDTO(
-                UPDATED_EMAIL,
                 DEFAULT_PASSWORD,
                 UPDATED_PASSWORD,
                 UPDATED_CPFCNPJ,

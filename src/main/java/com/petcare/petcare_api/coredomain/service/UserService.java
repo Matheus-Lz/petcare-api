@@ -74,14 +74,6 @@ public class UserService implements UserDetailsService {
             throw new IllegalArgumentException("Não é possível alterar outro usuário");
         }
 
-        if (dto.email() != null && !dto.email().isBlank()) {
-            if (repository.findByEmail(dto.email()) != null) {
-                throw new IllegalArgumentException("Email já em uso");
-            }
-
-            user.setEmail(dto.email());
-        }
-
         if (dto.name() != null && !dto.name().isBlank()) {
             user.setName(dto.name());
         }

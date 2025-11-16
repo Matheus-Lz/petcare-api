@@ -1,5 +1,6 @@
 package com.petcare.petcare_api.infrastructure.handler;
 
+import com.petcare.petcare_api.infrastructure.exception.UserExceptions;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +40,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
         var errorResponse = new ErrorResponse("FORBIDDEN", "Acesso negado.");
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+    }
+
+    @ExceptionHandler(UserExceptions.InvalidCurrentPasswordException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCurrentPasswordException(UserExceptions.InvalidCurrentPasswordException ex) {
+        var errorResponse = new ErrorResponse("BAD_REQUEST", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(UserExceptions.CurrentPasswordRequiredException.class)
+    public ResponseEntity<ErrorResponse> handleCurrentPasswordRequiredException(UserExceptions.CurrentPasswordRequiredException ex) {
+        var errorResponse = new ErrorResponse("BAD_REQUEST", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
     @ExceptionHandler(Exception.class)

@@ -117,17 +117,16 @@ class UserServiceTest {
 
     @Test
     void shouldUpdateUserBasicFields() {
-        User user = User.builder().email("a@a.com").name("A").cpfCnpj("1").password("p12345").role(UserRole.USER).build();
+        User user = User.builder().email("a@a.com").name("A").cpfCnpj("26001636036").password("p12345").role(UserRole.USER).build();
         user.setId("u1");
         mockAuthenticated(user);
         when(userRepository.findById("u1")).thenReturn(Optional.of(user));
 
-        UpdateUserRequestDTO dto = new UpdateUserRequestDTO("b@a.com", null, null, "2", "B");
+        UpdateUserRequestDTO dto = new UpdateUserRequestDTO(null, null, "12224730039", "B");
         userService.updateUser("u1", dto);
 
-        assertEquals("b@a.com", user.getEmail());
         assertEquals("B", user.getName());
-        assertEquals("2", user.getCpfCnpj());
+        assertEquals("12224730039", user.getCpfCnpj());
         verify(userRepository).save(user);
     }
 
@@ -141,7 +140,7 @@ class UserServiceTest {
         target.setId("u2");
         when(userRepository.findById("u2")).thenReturn(Optional.of(target));
 
-        UpdateUserRequestDTO dto = new UpdateUserRequestDTO(null, null, null, null, null);
+        UpdateUserRequestDTO dto = new UpdateUserRequestDTO(null, null, null, null);
         assertThrows(IllegalArgumentException.class, () -> userService.updateUser("u2", dto));
     }
 
@@ -152,7 +151,7 @@ class UserServiceTest {
         mockAuthenticated(user);
         when(userRepository.findById("u1")).thenReturn(Optional.of(user));
 
-        UpdateUserRequestDTO dto = new UpdateUserRequestDTO("a@a.com", "1", null, "1", "A");
+        UpdateUserRequestDTO dto = new UpdateUserRequestDTO("1", null, "1", "A");
         assertThrows(UserExceptions.CurrentPasswordRequiredException.class, () -> userService.updateUser("u1", dto));
     }
 
@@ -165,7 +164,6 @@ class UserServiceTest {
         when(passwordEncoder.matches("wrongpass", "hash123")).thenReturn(false);
 
         UpdateUserRequestDTO dto = new UpdateUserRequestDTO(
-                "a@a.com",
                 "newPassword",
                 "wrongpass",
                 "12345678901",
@@ -178,17 +176,17 @@ class UserServiceTest {
 
     @Test
     void shouldChangePasswordSuccessfully() {
-        User user = User.builder().password("hash").role(UserRole.USER).build();
+        User user = User.builder().email("xyz@gmail.com").password("hash123456").cpfCnpj("86939014004").role(UserRole.USER).build();
         user.setId("u1");
         mockAuthenticated(user);
         when(userRepository.findById("u1")).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches("old", "hash")).thenReturn(true);
-        when(passwordEncoder.encode("new")).thenReturn("hash2");
+        when(passwordEncoder.matches("old123456", "hash123456")).thenReturn(true);
+        when(passwordEncoder.encode("new123456")).thenReturn("hash2123456");
 
-        UpdateUserRequestDTO dto = new UpdateUserRequestDTO(null, "new", "old", null, null);
+        UpdateUserRequestDTO dto = new UpdateUserRequestDTO("new123456", "old123456", null, null);
         userService.updateUser("u1", dto);
 
-        assertEquals("hash2", user.getPassword());
+        assertEquals("hash2123456", user.getPassword());
         verify(userRepository).save(user);
     }
 
@@ -287,19 +285,19 @@ class UserServiceTest {
     @Test
     void shouldIgnoreBlankFieldsOnUpdate() {
         User user = User.builder()
-                .email("old@mail.com").name("Old").cpfCnpj("111")
-                .password("hash").role(UserRole.USER).build();
+                .email("old@mail.com").name("Old").cpfCnpj("12224730039")
+                .password("123456").role(UserRole.USER).build();
         user.setId("u1");
         mockAuthenticated(user);
         when(userRepository.findById("u1")).thenReturn(Optional.of(user));
 
-        UpdateUserRequestDTO dto = new UpdateUserRequestDTO("  ", "  ", null, "", "  ");
+        UpdateUserRequestDTO dto = new UpdateUserRequestDTO("  ", null, " ", "  ");
         userService.updateUser("u1", dto);
 
         assertEquals("old@mail.com", user.getEmail());
         assertEquals("Old", user.getName());
-        assertEquals("111", user.getCpfCnpj());
-        assertEquals("hash", user.getPassword());
+        assertEquals("12224730039", user.getCpfCnpj());
+        assertEquals("123456", user.getPassword());
         verify(userRepository).save(user);
     }
 
