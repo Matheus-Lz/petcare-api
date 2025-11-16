@@ -75,6 +75,10 @@ public class UserService implements UserDetailsService {
         }
 
         if (dto.email() != null && !dto.email().isBlank()) {
+            if (repository.findByEmail(dto.email()) != null) {
+                throw new IllegalArgumentException("Email já em uso");
+            }
+
             user.setEmail(dto.email());
         }
 
@@ -98,6 +102,7 @@ public class UserService implements UserDetailsService {
             user.setPassword(passwordEncoder.encode(dto.password()));
         }
 
+        user.validate();
         repository.save(user);
     }
 
