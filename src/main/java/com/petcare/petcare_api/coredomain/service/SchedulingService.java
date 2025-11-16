@@ -154,7 +154,7 @@ public class SchedulingService {
             LocalTime now = LocalTime.now();
             return availableTimes.stream()
                     .filter(time -> time.isAfter(now))
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         return availableTimes;
