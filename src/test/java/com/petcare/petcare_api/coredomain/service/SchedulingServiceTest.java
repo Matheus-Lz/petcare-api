@@ -191,20 +191,27 @@ class SchedulingServiceTest {
     }
 
     @Test
-    @WithMockCustomUser(email = CLIENT_EMAIL, cpf = CLIENT_CPF)
     void shouldNotAllowUpdateWhenStatusIsNotWaitingForArrival() {
         LocalDateTime hour = LocalDateTime.of(2025, 8, 4, 10, 0);
         Scheduling scheduling = schedulingService.create(new SchedulingRequestDTO(petService.getId(), hour));
         schedulingService.updateStatus(scheduling.getId(), SchedulingStatus.IN_PROGRESS);
-        SchedulingRequestDTO newDto = new SchedulingRequestDTO(petService.getId(), LocalDateTime.of(2025, 8, 4, 11, 0));
-        assertThrows(IllegalStateException.class, () -> schedulingService.update(scheduling.getId(), newDto));
+
+        SchedulingRequestDTO newDto =
+                new SchedulingRequestDTO(petService.getId(), LocalDateTime.of(2025, 8, 4, 11, 0));
+        var schedulingId = scheduling.getId();
+
+        assertThrows(IllegalStateException.class,
+                () -> schedulingService.update(schedulingId, newDto));
     }
 
     @Test
     @WithMockCustomUser(email = CLIENT_EMAIL, cpf = CLIENT_CPF)
     void getAvailableTimesShouldThrowIfNoWorkingPeriods() {
         LocalDate sunday = LocalDate.of(2025, 8, 3);
-        assertThrows(EntityNotFoundException.class, () -> schedulingService.getAvailableTimes(petService.getId(), sunday));
+        var petServiceId = petService.getId();
+
+        assertThrows(EntityNotFoundException.class,
+                () -> schedulingService.getAvailableTimes(petServiceId, sunday));
     }
 
     @Test
@@ -233,8 +240,14 @@ class SchedulingServiceTest {
     @WithMockCustomUser(email = CLIENT_EMAIL, cpf = CLIENT_CPF)
     void delegateToInvalidEmployeeShouldThrow() {
         LocalDateTime hour = LocalDateTime.of(2025, 8, 4, 10, 0);
-        Scheduling scheduling = schedulingService.create(new SchedulingRequestDTO(petService.getId(), hour));
-        assertThrows(IllegalArgumentException.class, () -> schedulingService.delegateToUser(scheduling.getId(), "emp-nao-existe"));
+        Scheduling scheduling = schedulingService.create(
+                new SchedulingRequestDTO(petService.getId(), hour)
+        );
+
+        var schedulingId = scheduling.getId();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> schedulingService.delegateToUser(schedulingId, "emp-nao-existe"));
     }
 
     @Test
@@ -242,10 +255,10 @@ class SchedulingServiceTest {
     void shouldAllowSchedulingExactlyOnPeriodEdges() {
         LocalDate date = LocalDate.of(2025, 8, 4);
 
-        var period = workingPeriodRepository.findAllByDayOfWeek(DayOfWeek.MONDAY).get(0);
+        var period = workingPeriodRepository.findAllByDayOfWeek(DayOfWeek.MONDAY).getFirst();
         int duration = petService.getTime();
         LocalTime firstStart = period.getStartTime();
-        LocalTime lastStart  = period.getEndTime().minusMinutes(duration);
+        LocalTime lastStart = period.getEndTime().minusMinutes(duration);
 
         Scheduling s1 = schedulingService.create(
                 new SchedulingRequestDTO(petService.getId(), date.atTime(firstStart)));

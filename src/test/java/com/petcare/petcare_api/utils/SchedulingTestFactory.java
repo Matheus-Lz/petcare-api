@@ -5,24 +5,12 @@ import com.petcare.petcare_api.coredomain.model.PetService;
 import com.petcare.petcare_api.coredomain.model.scheduling.Scheduling;
 import com.petcare.petcare_api.coredomain.model.scheduling.enums.SchedulingStatus;
 import com.petcare.petcare_api.coredomain.model.user.User;
-import com.petcare.petcare_api.coredomain.model.user.enums.UserRole;
-import com.petcare.petcare_api.infrastructure.repository.SchedulingRepository;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
 @Component
 public class SchedulingTestFactory {
-
-    private final SchedulingRepository schedulingRepository;
-    private final UserTestFactory userTestFactory;
-    private final PetServiceTestFactory petServiceTestFactory;
-
-    public SchedulingTestFactory(SchedulingRepository schedulingRepository, UserTestFactory userTestFactory, PetServiceTestFactory petServiceTestFactory) {
-        this.schedulingRepository = schedulingRepository;
-        this.userTestFactory = userTestFactory;
-        this.petServiceTestFactory = petServiceTestFactory;
-    }
 
     public static SchedulingRequestDTO buildRequestDTO() {
         return new SchedulingRequestDTO(

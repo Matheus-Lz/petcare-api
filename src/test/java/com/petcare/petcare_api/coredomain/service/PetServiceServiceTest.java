@@ -94,9 +94,16 @@ class PetServiceServiceTest {
 
     @Test
     void shouldRejectUpdateWithInvalidData() {
-        PetService s = petServiceService.create(new CreatePetServiceRequestDTO("A", "B", 10.0, 10));
-        UpdatePetServiceRequestDTO invalid = new UpdatePetServiceRequestDTO("", "", -1.0, 0);
-        assertThrows(IllegalArgumentException.class, () -> petServiceService.update(s.getId(), invalid));
+        PetService s = petServiceService.create(
+                new CreatePetServiceRequestDTO("A", "B", 10.0, 10)
+        );
+        UpdatePetServiceRequestDTO invalid =
+                new UpdatePetServiceRequestDTO("", "", -1.0, 0);
+
+        var petServiceId = s.getId();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> petServiceService.update(petServiceId, invalid));
     }
 
     @Test

@@ -14,7 +14,6 @@ import java.lang.reflect.Method;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -83,9 +82,9 @@ class TokenServiceTest {
 
             when(builder.withIssuer(anyString())).thenReturn(builder);
             when(builder.withSubject(anyString())).thenReturn(builder);
-            when(builder.withExpiresAt(any(Instant.class))).thenReturn(builder); // <-- aqui
+            when(builder.withExpiresAt(any(Instant.class))).thenReturn(builder);
 
-            when(builder.sign(eq(algorithmMock))).thenThrow(new JWTCreationException("fail", null));
+            when(builder.sign(algorithmMock)).thenThrow(new JWTCreationException("fail", null));
 
             assertThrows(UserExceptions.TokenGenerationException.class,
                     () -> tokenService.generateToken("user@example.com"));
