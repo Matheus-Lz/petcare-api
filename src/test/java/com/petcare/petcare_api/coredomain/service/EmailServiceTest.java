@@ -69,7 +69,7 @@ class EmailServiceTest {
         String token = "abc-123-token";
         String emailBody = emailService.resetToken(token);
         assertTrue(emailBody.contains("Redefinição de Senha"));
-        assertTrue(emailBody.contains("href=\"http://localhost:3000/reset-password?token=abc-123-token\""));
+        assertTrue(emailBody.contains("href=\"https://petcare-app-lac.vercel.app/reset-password?token=abc-123-token\""));
     }
 
     @Test
