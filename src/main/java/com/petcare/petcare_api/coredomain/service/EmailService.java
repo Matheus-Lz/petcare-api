@@ -93,7 +93,7 @@ public class EmailService {
                         <p>Clique no botão abaixo para continuar:</p>
                 
                         <div class="btn-container">
-                          <a href="http://localhost:3000/reset-password?token=%s"
+                          <a href="https://petcare-app-lac.vercel.app/reset-password?token=%s"
                              style="background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-size: 16px; font-weight: bold; display: inline-block;">
                             Redefinir Senha
                           </a>
